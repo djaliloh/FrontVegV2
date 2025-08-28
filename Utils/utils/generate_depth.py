@@ -98,7 +98,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Exécute Depth Anything V2 sur un jeu d'images")
     parser.add_argument("--img_path", type=str, default="./dataset/", help="Chemin vers le dossier d'images")
     parser.add_argument("--input_size", type=int, default=518, help="Taille d'entrée du modèle")
-    parser.add_argument("--outdir", type=str, default="./GdSam2/Depth-Anything-V2", help="Répertoire de sortie")
+    parser.add_argument("--outdir", type=str, default="./Depth-Anything-V2", help="Répertoire de sortie")
     parser.add_argument("--encoder", type=str, choices=["vits", "vitb", "vitl", "vitg"], default="vitl", help="Type d'encodeur")
     parser.add_argument("--pred_only", action="store_true", help="Si défini, sauvegarde uniquement la prédiction")
     parser.add_argument("--grayscale", action="store_true", help="Si défini, génère des cartes de profondeur en niveaux de gris")
