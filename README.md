@@ -1,6 +1,6 @@
-# Foreground Extraction from Background
+# Foreground Mask Extraction In Row Crop Images
 
-This repository provides a simple pipeline to extract the **foreground mask** from **row cropping RGB** images using depth estimation and histogram-based thresholding.
+This repository provides a simple pipeline to extract the **foreground mask** from **row crop RGB** images using depth estimation and histogram-based thresholding.
 
 ---
 
