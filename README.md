@@ -35,7 +35,7 @@ This repository provides a simple pipeline to extract the **foreground mask** fr
 4. **Run the script**
     * Step 3:
         1. Specify your data path in run_fgvegseg_pipline.sh file
-        2. <pre> ```bash run_fgvegseg_pipline.sh``` </pre>
+        2. <pre> ``` bash run_fgvegseg_pipline.sh ``` </pre>
 
 
 
