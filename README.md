@@ -34,9 +34,11 @@ This repository provides a simple pipeline to extract the **foreground mask** fr
 * Generates a clean **foreground mask**.
 ---
 
-## 👤 Author
+<!-- ## 👤 Authors
 
-- **Abdoul Djalil OUSSEINI H.** – Initial work & implementation  
+- **Abdoul Djalil OUSSEINI H.** – Initial work & implementation 
+- **Herearii MOUTERA** – Contribute to the initial work 
+- **David ROUSSEAU** – Contribute to the initial work  -->
 
 
 ---
