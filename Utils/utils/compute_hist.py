@@ -7,7 +7,7 @@ import argparse
 def individual_histogram(depth_maps_dir="./Depth-Anything-V2/depth_maps"):
     """
     Compute individual histograms from depth maps.
-    Author: Abdoul Djalil Ousseini Hamza
+    Author: @Abdoul Djalil Ousseini Hamza
     """
     depthImg = sorted(glob.glob(os.path.join(depth_maps_dir, "*", "*")))
     total_depth_image = len(depthImg)

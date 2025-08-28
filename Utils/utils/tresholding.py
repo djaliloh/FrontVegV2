@@ -11,7 +11,7 @@ def thresholding(depth_maps_dir: str, output_method: str = "opt_min"):
     # output_method = prms =["output_method"]
     """
     This perform a binary threshold in estimated depth images
-    Autor: Abdoul Djalil Ousseini Hamza
+    Autor: @Abdoul Djalil Ousseini Hamza
 
     Args:
         depth_maps_dir (str): Chemin vers le dossier contenant les images de profondeur.

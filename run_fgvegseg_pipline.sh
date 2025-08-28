@@ -9,16 +9,13 @@ echo "- START : $(date -d @$start) -"
 
 
 ######## Paths and prompts ######## 
-# datapath="/media/utilisateur/DATA/DJALIL/data_peachdisease"
-#prompts=("hypertrophied leaves ." "swollen leaves ." "curled leaves ." "distorted foliage ." "blistered leaves ." "puffy leaves ." "malformed leaves .")
-#prompts=("black rot leaf." "Red discolored leaf ." "swollen leaf ." "hypertrophied leaf ." "malformed leaves .")
-datapath="/media/utilisateur/DATA/DJALIL/test-data/Tiff_corrige"  #"/media/utilisateur/DATA/DJALIL/data_winedisease"
-prompts=("leaves close to camera ." "leaves in front of camera .")
+datapath="/media/utilisateur/DATA/DJALIL/test-data/Tiff_corrige" 
+# prompts=("leaves close to camera ." "leaves in front of camera .")
 
 
 # ########### 
 echo -e "----------\n >> Generate depth maps"
-python ForegroundVegSeg/utilis/generate_depth.py \
+python Utils/utils/generate_depth.py \
     --img_path "$datapath" \
     --input_size 518 \
     --outdir Depth-Anything-V2 \
@@ -27,7 +24,7 @@ python ForegroundVegSeg/utilis/generate_depth.py \
 
 
 echo -e "----------\n >> Thresholding"
-python ForegroundVegSeg/utilis/tresholding.py
+python Utils/utils/tresholding.py
 
 
 
