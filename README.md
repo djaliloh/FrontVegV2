@@ -6,7 +6,11 @@ This repository provides a simple pipeline to extract the **foreground mask** fr
 
 ## 🔹 Pipeline Overview
 
-1. **Depth Estimation**
+1. **Clone the repository**
+
+     1. cd 
+
+2. **Depth Estimation**
 
    * We use [Depth-Anything V2](https://github.com/DepthAnything/Depth-Anything-V2) to generate depth maps from RGB images.
    * Steps:
@@ -14,7 +18,7 @@ This repository provides a simple pipeline to extract the **foreground mask** fr
      1. Clone the official repository.
      2. Download the pre-trained weights (we use the `vitl` model).
 
-2. **Foreground Mask Extraction**
+3. **Foreground Mask Extraction**
 
    * From the generated depth maps, we apply the following steps:
 
