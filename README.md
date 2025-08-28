@@ -1,6 +1,6 @@
 # Foreground Extraction from Background
 
-This repository provides a simple pipeline to extract the **foreground mask** from RGB images using depth estimation and histogram-based thresholding.
+This repository provides a simple pipeline to extract the **foreground mask** from **row cropping RGB** images using depth estimation and histogram-based thresholding.
 
 ---
 
@@ -32,5 +32,11 @@ This repository provides a simple pipeline to extract the **foreground mask** fr
 * Analyzes the histogram of the depth map to detect valleys (local minima).
 * Selects the best threshold based on these minima.
 * Generates a clean **foreground mask**.
+---
+
+## 👤 Author
+
+- **Abdoul Djalil OUSSEINI H.** – Initial work & implementation  
+
 
 ---
