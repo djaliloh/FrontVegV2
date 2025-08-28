@@ -6,9 +6,9 @@ This repository provides a simple pipeline to extract the **foreground mask** fr
 
 ## 🔹 Pipeline Overview
 
-1. **Clone our [repository](https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git)**
+1. **Clone our repository [Foreground-Mask-Extraction-In-Row-Crop-Images.git](https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git)**
     * Steps:
-        1. clone the repository :  git clone [Foreground-Mask-Extraction-In-Row-Crop-Images.git](https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git)
+        1. clone :  git clone https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git
         2. cd Foreground-Mask-Extraction-In-Row-Crop-Images
 
 2. **Depth Estimation**
