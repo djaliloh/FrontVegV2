@@ -30,29 +30,6 @@ echo -e "----------\n >> Thresholding"
 python ForegroundVegSeg/utilis/tresholding.py
 
 
-echo -e "----------\n >> Batch segmentation with Dino2 + Sam2"
-python ForegroundVegSeg/utilis/batch_segmentation.py \
-    --input_path "$datapath" \
-    --output_path dinoSam2-outputs \
-    --text_prompts "${prompts[@]}" #"$prompts" #
-
-    
-echo -e "----------\n >> Intersection"
-python ForegroundVegSeg/utilis/AND.py \
-    --fgm_path opt_min-outputs \
-    --fgvm_path dinoSam2-outputs \
-    --output_path AND_oper-outputs \
-    --text_prompts "${prompts[@]}"
-
-
-echo -e "----------\n >> Superposition" 
-python ForegroundVegSeg/utilis/overlay.py \
-    --RGB_path "$datapath" \
-    --AND_path AND_oper-outputs \
-    --output_path Superpose-outputs \
-    --text_prompts "${prompts[@]}"
-# ###########
-
 
 # timestamp - end
 end=$(date +%s)
