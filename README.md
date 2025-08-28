@@ -17,19 +17,19 @@ This repository provides a simple pipeline to extract the **foreground mask** fr
      4. **Mask Generation** – the resulting binary mask separates the **foreground** from the **background**.
 
 
-## To run the code:
+## To run the code
 
 
 2. **Clone our repository [Foreground-Mask-Extraction-In-Row-Crop-Images](https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git)**
     
     * Step 1:
-        1. clone :  git clone https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git
-        2. cd Foreground-Mask-Extraction-In-Row-Crop-Images
+        1. clone :  <pre> git clone https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git </pre>
+        2. <pre> cd Foreground-Mask-Extraction-In-Row-Crop-Images </pre>
 
 3. **Depth Estimation**
 
    * Step 2:
-     1. Clone the official repository : git clone https://github.com/DepthAnything/Depth-Anything-V2.git
+     1. Clone the official repository : <pre> git clone https://github.com/DepthAnything/Depth-Anything-V2.git </pre>
      2. Download the pre-trained weights (we use the `vitl` model).
 
 4. **Run the script**
