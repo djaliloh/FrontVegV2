@@ -22,15 +22,20 @@ This repository provides a simple pipeline to extract the **foreground mask** fr
 
 2. **Clone our repository [Foreground-Mask-Extraction-In-Row-Crop-Images.git](https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git)**
     
-    * Steps:
+    * Step 1:
         1. clone :  git clone https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git
         2. cd Foreground-Mask-Extraction-In-Row-Crop-Images
 
 3. **Depth Estimation**
-    
-   * Steps:
+
+   * Step 2:
      1. Clone the official repository : git clone https://github.com/DepthAnything/Depth-Anything-V2.git
      2. Download the pre-trained weights (we use the `vitl` model).
+
+4. **Run the script**
+    * Step 3:
+        1. Specify your data path in run_fgvegseg_pipline.sh file
+        2. bash run_fgvegseg_pipline.sh
 
 
 
