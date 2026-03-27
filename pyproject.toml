@@ -1,2 +1,3 @@
-[tool.setuptools.packages.find]
-where = ["src"]
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

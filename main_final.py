@@ -6,7 +6,7 @@ import numpy as np
 from pathlib import Path
 from PIL import Image
 
-sys.path.append(str(Path(__file__).resolve().parent / "src"))  # Pour eviter de faire ""PYTHONPATH=src python -m frontveg.main_final
+sys.path.append(str(Path(__file__).resolve().parent / "src"))  
 
 # /home/adjalil/Working/FrontVegetation/data_t_pipeline
 # /home/adjalil/Working/FrontVegetation/outputs_t_pipeline
@@ -43,7 +43,7 @@ def main():
     args = parser.parse_args()
 
     # --- 1. INITIALIZATION ---
-    config = vars(args) # Convert argparse Namespace to dict for easier passing to classes
+    config = vars(args) 
     
     # Load Models
     print(">>> Loading FrontVeg (Depth) and SAM3 models...")
@@ -52,11 +52,9 @@ def main():
     sam3_tiler = SAM3TiledInference(sam3_model, tile_size=args.tile_size)
     post_proc = PostProcessor()
 
-    # Prep folders
     input_path = Path(args.input)
     output_root = Path(args.output)
     
-    # On détecte les sous-dossiers (ton amélioration)
     subdirs = [p for p in input_path.iterdir() if p.is_dir()]
     if not subdirs: subdirs = [input_path]
 
@@ -64,15 +62,12 @@ def main():
     for subdir in subdirs:
         print(f"\n--- Processing Subdirectory: {subdir.name} ---")
         
-        # A. Run FrontVeg on the whole folder (for batch normalization)
-        # This creates masks in output_root/frontveg/masks/subdir.name
         frontveg_pipe.process_folder(str(subdir), output_root / "temp_frontveg")
         
-        # B. Loop for SAM3 + Intersection + Overlay
         images = list(subdir.glob("*.[jJ][pP][gG]")) + list(subdir.glob("*.[pP][nN][gG]"))
         
         for img_p in images:
-                    print(f"  > Fusing: {img_p.name}")
+                    print(f"--> Step 3 [Fusing]: {img_p.name}")
                     
         
                     pil_img = Image.open(img_p).convert("RGB")
@@ -89,19 +84,16 @@ def main():
                         print(f"    ! SAM3 found nothing for {img_p.name}")
                         continue
 
-                    # Logical Fusion (Strict Intersection)
                     final_id_map, final_mask = post_proc.get_final_colored_map(id_map_raw, mask_fv)
 
-                    # Create Visual Renderings
-                    # Rendering A: Original pixels only inside the mask (black background)
                     final_rgb_cutout = post_proc.apply_overlay(rgb_np, final_mask)
-                    # Rendering B: Colored labels on original RGB
                     colored_overlay = Visualizer.create_overlay(final_rgb_cutout, final_id_map, alpha=0.5)
+
                     colored_overlay_phenoweek = Visualizer.create_overlay(rgb_np, final_id_map, alpha=0.5)
 
                     # output paths
                     paths = {
-                        "sam3_overlay": output_root / "sam3_overlay_finalmask" / subdir.name,
+                        "sam3_overlay": output_root / "sam3_overlay" / subdir.name,
                         "rgb_cutout": output_root / "rgb_overlay_finalmask" / subdir.name,
                         "masks": output_root / "final_masks" / subdir.name,
                         "id_maps": output_root / "final_id_maps" / subdir.name,
@@ -109,21 +101,15 @@ def main():
                     }
                     
                     for d in paths.values(): d.mkdir(parents=True, exist_ok=True)
-                    # os.makedirs(output_root / "sam3_overlay_input_rgb" / subdir.name, exist_ok=True)
 
-                    # colored visualization
                     cv2.imwrite(str(paths["sam3_overlay"] / img_p.name), cv2.cvtColor(colored_overlay, cv2.COLOR_RGB2BGR)) 
 
-                    # SAM3 on input RGB
-                    cv2.imwrite(str(paths["sam3_on_input_rgb"] / img_p.name), colored_overlay_phenoweek) #cv2.cvtColor(colored_overlay_phenoweek, cv2.COLOR_BGR2RGB))
+                    cv2.imwrite(str(paths["sam3_on_input_rgb"] / img_p.name), colored_overlay_phenoweek)
                     
-                    # (RGB objects on black)
                     cv2.imwrite(str(paths["rgb_cutout"] / img_p.name), cv2.cvtColor(final_rgb_cutout, cv2.COLOR_RGB2BGR))
                     
-                    # binary mask (0 or 255)
                     cv2.imwrite(str(paths["masks"] / img_p.name), final_mask)
                     
-                    # ID Map (Data only - will look black in viewers if unint16)
                     cv2.imwrite(str(paths["id_maps"] / img_p.name), final_id_map.astype(np.uint8))
          
 
@@ -135,11 +121,10 @@ if __name__ == "__main__":
 
 
 # python main_final.py \
-# --input ./mildiou \
-# --output ./outputs_t_pipeline_mildiou \
+# --input ./data/leaf \
+# --output ./results\
 # --sam3_ckpt ./checkpoints/sam3_ckpts/sam3.pt \
-# --prompt "brown leaf" \
+# --prompt "leaf" \
 # --peak_dist 1 \
 # --sigma 1.1 \
 # --smoothed
-

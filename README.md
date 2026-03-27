@@ -20,11 +20,11 @@ This repository provides a simple pipeline to extract the **foreground mask** fr
 ## To run the code
 
 
-1. **Clone our repository [Foreground-Mask-Extraction-In-Row-Crop-Images](https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git)**
+1. **Clone our repository [FrontVeg](https://github.com/djaliloh/FrontVeg.git)**
     
     * Step 1:
-        1. clone :  <pre> git clone https://github.com/djaliloh/Foreground-Mask-Extraction-In-Row-Crop-Images.git </pre>
-        2. <pre> cd Foreground-Mask-Extraction-In-Row-Crop-Images </pre>
+        1. clone :  <pre> git clone https://github.com/djaliloh/[FrontVeg](https://github.com/djaliloh/FrontVeg.git) </pre>
+        2. <pre> cd FrontVeg </pre>
 
 2. **Depth Estimation**
 
