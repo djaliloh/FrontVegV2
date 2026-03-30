@@ -1,0 +1,34 @@
+# Byte-compiled / cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environnements virtuels
+.env
+.venv
+env/
+venv/
+
+# Fichiers de build / packaging
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Checkpoints (modèles lourds)
+checkpoints/
+*.pt
+*.pth
+
+# Dossiers externes (datasets, deps non versionnées)
+external/
+data/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
