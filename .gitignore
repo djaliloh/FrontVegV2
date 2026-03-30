@@ -25,6 +25,7 @@ checkpoints/
 # Dossiers externes (datasets, deps non versionnées)
 external/
 data/
+outputs/
 
 # Jupyter
 .ipynb_checkpoints/
