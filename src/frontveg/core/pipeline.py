@@ -88,7 +88,6 @@ class FrontVegPipeline:
         s = sigma if sigma is not None else self.config.get('sigma', 1.1)
         
         # 2. Depth Inference
-        # Ensure self.depth_model is properly initialized in __init__
         depth = self.depth_model.infer(image_np)
         
         # For a single image, the local max is our reference
