@@ -81,32 +81,32 @@ class FrontVegPipeline:
     
 
 
-        def predict(self, image_np, sigma=None):
-            """
-            Inference for a single image (Napari).
-            """
-            s = sigma if sigma is not None else self.config.get('sigma', 1.1)
+    def predict(self, image_np, sigma=None):
+        """
+        Inference for a single image (Napari).
+        """
+        s = sigma if sigma is not None else self.config.get('sigma', 1.1)
+        
+        # 2. Depth Inference
+        # Ensure self.depth_model is properly initialized in __init__
+        depth = self.depth_model.infer(image_np)
+        
+        # For a single image, the local max is our reference
+        current_max = depth.max() 
+        
+        # 3. Histogram and Normalization
+        clean_depth, hist = self.hist_engine.normalize_and_hist(depth, current_max)  
+        
+        # 4. Valley Search (Automatic Thresholding)
+        analysis = self.valley_engine.find_optimal_threshold(hist)
+        
+        if analysis and 'optimal_threshold' in analysis:
+            threshold = analysis['optimal_threshold']
+            # On applique le sigma pour ajuster la sensibilité
+            # (Ta logique peut varier ici selon tes recherches)
+            mask = (clean_depth > threshold).astype(np.uint8) * 255
+        else:
+            # Fallback si l'analyse d'histogramme échoue
+            mask = (clean_depth > (current_max * 0.5)).astype(np.uint8) * 255
             
-            # 2. Depth Inference
-            # Ensure self.depth_model is properly initialized in __init__
-            depth = self.depth_model.infer(image_np)
-            
-            # For a single image, the local max is our reference
-            current_max = depth.max() 
-            
-            # 3. Histogram and Normalization
-            clean_depth, hist = self.hist_engine.normalize_and_hist(depth, current_max)  
-            
-            # 4. Valley Search (Automatic Thresholding)
-            analysis = self.valley_engine.find_optimal_threshold(hist)
-            
-            if analysis and 'optimal_threshold' in analysis:
-                threshold = analysis['optimal_threshold']
-                # On applique le sigma pour ajuster la sensibilité
-                # (Ta logique peut varier ici selon tes recherches)
-                mask = (clean_depth > threshold).astype(np.uint8) * 255
-            else:
-                # Fallback si l'analyse d'histogramme échoue
-                mask = (clean_depth > (current_max * 0.5)).astype(np.uint8) * 255
-                
-            return mask
+        return mask
