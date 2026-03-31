@@ -14,6 +14,7 @@ class FrontVegPipeline:
         # Initialize sub-modules
         self.depth_model = DepthAnythingWrapper(
             encoder=config.get('encoder', 'vitl'),
+            checkpoint_path=config.get('depth_ckpt_path'),
             repo_path=config.get('depth_repo_path') #, 'Depth-Anything-V2'
         )
         self.hist_engine = HistogramProcessor()

@@ -38,7 +38,7 @@ def get_postprocessor():
         _GLOBAL_STATE["postproc"] = PostProcessor()
     return _GLOBAL_STATE["postproc"]
 
-# --- WIDGET NAPARI ---
+# --- WIDGET NAPARI --- 
 
 def make_frontveg_widget():
     @magicgui(
@@ -52,7 +52,7 @@ def make_frontveg_widget():
     def widget(
         image: "napari.layers.Image", 
         prompt: str = "leaf",
-        tile_overlap: float = 0.3,
+        tile_overlap: float = 0.5,
         sigma: float = 1.1,
         peak_dist: float = 1.0,
         auto_save: bool = False,
@@ -70,7 +70,7 @@ def make_frontveg_widget():
             'sigma': sigma, 
             'encoder': 'vitl', 
             'depth_repo_path': 'external/Depth-Anything-V2',
-            'peak_dist': 1.0, 
+            'peak_dist': peak_dist, 
             'peak_height': 0.5, 
             'smoothed': True, 
             'sam3_ckpt': 'checkpoints/sam3_ckpts/sam3.pt', 

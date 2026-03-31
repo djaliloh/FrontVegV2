@@ -5,7 +5,14 @@ import sys
 import os
 
 class DepthAnythingWrapper:
-    def __init__(self, encoder='vitl', device=None, repo_path="external/Depth-Anything-V2"):
+    def __init__(
+        self, 
+        encoder='vitl', 
+        device=None, 
+        checkpoint_path="checkpoints/depthanything_ckpts", 
+        repo_path="external/Depth-Anything-V2"
+        ):
+
         self.device = device if device else ('cuda' if torch.cuda.is_available() else 'cpu')
 
         if repo_path is None:
@@ -25,8 +32,8 @@ class DepthAnythingWrapper:
         }
 
         self.model = DepthAnythingV2(**self.configs[encoder])
-        ckpt_path = f'checkpoints/depthanything_ckpts/depth_anything_v2_{encoder}.pth'  
-        self.model.load_state_dict(torch.load(ckpt_path, map_location='cpu', weights_only=True))
+        self.ckpt_path = f'{checkpoint_path}/depth_anything_v2_{encoder}.pth'  
+        self.model.load_state_dict(torch.load(self.ckpt_path, map_location='cpu', weights_only=True))
         self.model.to(self.device).eval()
         print(f"DepthAnythingV2 ({encoder}) loaded on {self.device}")
 
@@ -39,5 +46,3 @@ class DepthAnythingWrapper:
     
 
 
-
-# /home/adjalil/Working/FrontVegetation/checkpoints/depthanything_ckpts/depth_anything_v2_vitl.pth
