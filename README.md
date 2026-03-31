@@ -1,8 +1,9 @@
-# FrontVeg-V2: A Semantic-Geometric Fusion Pipeline for Precision Phenotyping
+<!-- # FrontVeg-V2: A Semantic-Geometric Fusion Pipeline for Precision Phenotyping -->
 <!-- <p align="center"> -->
 <!-- <p align="center">
     <img src="assets/logo.png" alt="Project Logo" width=1100> 
 </p> -->
+# FrontVeg-V2: A Semantic-Geometric Fusion Pipeline
 
 <img src="assets/logo.png" alt="Project Logo" width=3000>
 
