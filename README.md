@@ -3,7 +3,7 @@
 <!-- <p align="center">
     <img src="assets/logo.png" alt="Project Logo" width=1100> 
 </p> -->
-# FrontVeg-V2: A Semantic-Geometric Fusion Pipeline
+# FrontVeg-V2: Foreground-Aware Zero-Shot Plant Trait Segmentation
 
 <img src="assets/logo.png" alt="Project Logo" width=3000>
 
