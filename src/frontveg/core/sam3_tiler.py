@@ -52,24 +52,145 @@ class SAM3TiledInference:
     def _merge_fragments(self, fragments, W, H):
         if not fragments: return None, 0
 
-        # --- LOGIQUE DE GRAPHE  ---
+        num_frags = len(fragments)
+        
+        # --- ÉTAPE 1 : GRAPHE DE CONNEXITÉ HYBRIDE (BOX PUIS MASK IOU) ---
+        # On commence par calculer l'IoU rapide des boîtes englobantes
         boxes = torch.tensor([f['bbox'] for f in fragments], dtype=torch.float32)
-        iou_matrix = box_iou(boxes, boxes)
-        adjacency = (iou_matrix > 0.15).numpy().astype(int) # Seuil IOU
+        box_iou_matrix = box_iou(boxes, boxes).numpy()
         
+        # Matrice d'adjacence initiale (chaque fragment est connecté à lui-même)
+        adjacency = np.eye(num_frags, dtype=bool)
+        
+        # On filtre : on n'analyse au niveau du masque QUE si les bboxes se touchent
+        pairs = np.argwhere(box_iou_matrix > 0.05)
+        for i, j in pairs:
+            if i >= j: continue # On évite les doublons (matrice symétrique)
+            
+            f1, f2 = fragments[i], fragments[j]
+            b1, b2 = f1['bbox'], f2['bbox']
+            
+            # Calcul de la zone d'intersection des bboxes (coordonnées inclusives)
+            ix1, iy1 = max(b1[0], b2[0]), max(b1[1], b2[1])
+            ix2, iy2 = min(b1[2], b2[2]), min(b1[3], b2[3])
+            
+            if ix1 <= ix2 and iy1 <= iy2:
+                # Extraction des sous-régions de masques (attention au +1 pour l'excluf de numpy)
+                p1 = f1['mask'][iy1 - b1[1] : iy2 - b1[1] + 1, ix1 - b1[0] : ix2 - b1[0] + 1]
+                p2 = f2['mask'][iy1 - b2[1] : iy2 - b2[1] + 1, ix1 - b2[0] : ix2 - b2[0] + 1]
+                
+                # Calcul du Mask IoU réel sur la zone commune
+                intersection = np.logical_and(p1, p2).sum()
+                if intersection > 0:
+                    area1 = f1['mask'].sum()
+                    area2 = f2['mask'].sum()
+                    mask_iou = intersection / (area1 + area2 - intersection)
+                    
+                    # Seuil d'IoU réel pour valider qu'il s'agit du même objet coupé par la grille
+                    if mask_iou > 0.10: 
+                        adjacency[i, j] = True
+                        adjacency[j, i] = True
+
+        # Résolution des composants connexes
         n_leaves, labels = connected_components(csgraph=csr_matrix(adjacency), directed=False)
-        
-        # Reconstruction de la map ID (16-bit)
+
+        # --- ÉTAPES 2 & 3 : FUSION PAR MAXIMUM GLOBAL (RAM OPTIMISÉE) ---
+        # Plus de dictionnaire par leaf, plus de stack (N, H, W). 
+        # On travaille directement "en ligne" sur l'image finale.
         final_id_map = np.zeros((H, W), dtype=np.uint16)
+        max_score_map = np.zeros((H, W), dtype=np.float32)
+
         for idx, frag in enumerate(fragments):
-            leaf_id = labels[idx] + 1
+            leaf_id = int(labels[idx]) + 1
+            score = float(frag['score'])
             x1, y1, x2, y2 = frag['bbox']
             patch = frag['mask']
-            # On s'assure que le patch rentre dans la zone (clipping)
+
             h_p, w_p = patch.shape
-            final_id_map[y1:y1+h_p, x1:x1+w_p][patch] = leaf_id
-            
+            y2c, x2c = min(y1 + h_p, H), min(x1 + w_p, W)
+            ph, pw = y2c - y1, x2c - x1
+
+            # Masque local ajusté aux bordures de l'image si nécessaire
+            local_mask = patch[:ph, :pw]
+
+            # On extrait la zone correspondante de notre carte de scores globale
+            global_score_roi = max_score_map[y1:y2c, x1:x2c]
+
+            # Un pixel est mis à jour SI il appartient au fragment ET si son score 
+            # est strictement supérieur au score maximum enregistré à cet endroit.
+            update_mask = local_mask & (score > global_score_roi)
+
+            # Écriture directe (Winner-Takes-All instantané sans allocation de RAM)
+            max_score_map[y1:y2c, x1:x2c][update_mask] = score
+            final_id_map[y1:y2c, x1:x2c][update_mask] = leaf_id
+
         return final_id_map, n_leaves
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    # ==========================================================
+    # Par claude ai, it works but artifacts still visible
+    # def _merge_fragments(self, fragments, W, H):
+    #     if not fragments: return None, 0
+
+    #     # --- ÉTAPE 1 : GRAPH DE CONNEXITÉ PAR IOU ---
+    #     boxes = torch.tensor([f['bbox'] for f in fragments], dtype=torch.float32)
+    #     iou_matrix = box_iou(boxes, boxes)
+    #     adjacency = (iou_matrix > 0.15).numpy().astype(int)
+
+    #     n_leaves, labels = connected_components(csgraph=csr_matrix(adjacency), directed=False)
+
+    #     # --- ÉTAPE 2 : ACCUMULATION PAR SCORE (évite les artefacts de grille) ---
+    #     # Pour chaque pixel, on garde l'instance avec le score cumulé le plus élevé.
+    #     # score_accum[leaf_id] accumule les scores SAM3 pondérés par les masques.
+    #     # On utilise un dict de score_maps pour ne pas exploser la RAM.
+    #     score_accum = {}   # leaf_id (1-based) -> np.float32 map (H x W)
+
+    #     for idx, frag in enumerate(fragments):
+    #         leaf_id = int(labels[idx]) + 1
+    #         score   = float(frag['score'])
+    #         x1, y1, x2, y2 = frag['bbox']
+    #         patch   = frag['mask']         # bool crop
+
+    #         h_p, w_p = patch.shape
+    #         # Clamp au cas où le bbox dépasse (ne devrait pas arriver mais sécurité)
+    #         y2c = min(y1 + h_p, H)
+    #         x2c = min(x1 + w_p, W)
+    #         ph  = y2c - y1
+    #         pw  = x2c - x1
+
+    #         if leaf_id not in score_accum:
+    #             score_accum[leaf_id] = np.zeros((H, W), dtype=np.float32)
+
+    #         score_accum[leaf_id][y1:y2c, x1:x2c][patch[:ph, :pw]] += score
+
+    #     # --- ÉTAPE 3 : WINNER-TAKES-ALL pixel par pixel ---
+    #     # Construit une stack (n_instances, H, W) → argmax → id_map
+    #     ids      = sorted(score_accum.keys())          # [1, 2, 3, ...]
+    #     stack    = np.stack([score_accum[i] for i in ids], axis=0)  # (N, H, W)
+    #     max_vals = stack.max(axis=0)                   # (H, W)
+    #     winner   = np.argmax(stack, axis=0)            # index into ids (0-based)
+
+    #     final_id_map = np.zeros((H, W), dtype=np.uint16)
+    #     mask_any     = max_vals > 0                    # pixels couverts par au moins 1 fragment
+    #     final_id_map[mask_any] = np.array(ids, dtype=np.uint16)[winner[mask_any]]
+
+    #     return final_id_map, n_leaves
 
 # =============================================================================
 # import numpy as np

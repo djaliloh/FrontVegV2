@@ -7,6 +7,7 @@ from frontveg.core.hist_processor import HistogramProcessor
 from frontveg.core.valley_processor import ValleyProcessor
 from frontveg.core.segmenter import BinarySegmenter
 from frontveg.utils.reporting import AnalysisReporter
+from frontveg.utils.image_loader import ImageLoader, convert_output_filename
 
 class FrontVegPipeline:
     def __init__(self, config):
@@ -29,9 +30,13 @@ class FrontVegPipeline:
     def process_folder(self, input_dir, output_root, plot_graphics=False):
         """
         Processes a full folder of images, following your batch normalization logic.
+        Supports PNG, JPG, TIF, TIFF, CR3 and other formats via ImageLoader.
         """
         input_path = Path(input_dir)
-        images = list(input_path.glob("*.*")) # Add specific extensions if needed
+        
+        # Get all supported image formats (PNG, JPG, TIF, TIFF, CR3, etc.)
+        from frontveg.utils.image_loader import get_image_files
+        images = get_image_files(str(input_path), supported_only=True)
         
         # 1. Generate raw depth maps and find global max for this folder
         raw_depths = []
@@ -40,20 +45,29 @@ class FrontVegPipeline:
         
         print(f"--> Step 1: Depth Estimation for {input_path.name}")
         for img_p in images:
-            # print(f"[DEBUG] Processing {img_p.name}...")
-            img = cv.imread(str(img_p))
-            if img is None: continue
-            
-            # print("[DEBUG] PIPELINE: calling depth inference")
-            depth = self.depth_model.infer(img)
-            raw_depths.append(depth)
-            valid_images.append(img_p)
-            global_max = max(global_max, depth.max())
+            try:
+                # Load image using ImageLoader (handles all formats)
+                img = ImageLoader.load_image(str(img_p), return_format="bgr")
+                
+                if img is None:
+                    print(f"    [SKIP] Failed to load {img_p.name}")
+                    continue
+                
+                # print("[DEBUG] PIPELINE: calling depth inference")
+                depth = self.depth_model.infer(img)
+                raw_depths.append(depth)
+                valid_images.append(img_p)
+                global_max = max(global_max, depth.max())
 
-            # Save raw depth for reference
-            depth_dir = Path(output_root) / "depth" / input_path.name
-            depth_dir.mkdir(parents=True, exist_ok=True)
-            cv.imwrite(str(depth_dir / img_p.name), depth)
+                # Save raw depth for reference
+                depth_dir = Path(output_root) / "depth" / input_path.name
+                depth_dir.mkdir(parents=True, exist_ok=True)
+                output_filename = convert_output_filename(img_p.name, target_format="png")
+                cv.imwrite(str(depth_dir / output_filename), depth)
+                
+            except Exception as e:
+                print(f"    [ERROR] Failed to process {img_p.name}: {str(e)}")
+                continue
 
         # 2. Process each image for thresholding
         print(f"--> Step 2: Thresholding and Mask Generation")
@@ -71,7 +85,8 @@ class FrontVegPipeline:
                 # Save Mask
                 out_dir = Path(output_root) / "masks" / input_path.name
                 out_dir.mkdir(parents=True, exist_ok=True)
-                cv.imwrite(str(out_dir / img_p.name), mask)
+                output_filename = convert_output_filename(img_p.name, target_format="png")
+                cv.imwrite(str(out_dir / output_filename), mask)
                 
                 # Optional Plotting
                 if plot_graphics:

@@ -1,12 +1,11 @@
-name: napari-frontveg
-display_name: FrontVeg + SAM3
+name: frontvegV2 
+display_name: FrontVeg V2
 contributions:
   widgets:
-    - command: napari-frontveg.make_frontveg_widget
-      display_name: FrontVeg Studio 
+    - command: frontvegV2.make_frontveg_widget
+      display_name: FrontVeg V2 Studio  
   commands:
-    - id: napari-frontveg.make_frontveg_widget
+    - id: frontvegV2.make_frontveg_widget
       python_name: napari_frontveg:make_frontveg_widget
-      title: Open FrontVeg + SAM3
-
+      title: Open FrontVeg V2
 

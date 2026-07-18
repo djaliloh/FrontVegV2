@@ -9,6 +9,10 @@ from skimage.measure import label, regionprops
 from napari.utils.notifications import show_info, show_error
 from PIL import Image
 
+# Chemin absolu vers la racine du projet (frontveg2/)
+# src/napari_frontveg/__init__.py → ../../.. = racine
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
 _GLOBAL_STATE = {}
 
 # --- LOADING MODELS ---
@@ -16,12 +20,12 @@ _GLOBAL_STATE = {}
 def get_fv_pipeline(config):
     if "pipeline" not in _GLOBAL_STATE:
         from frontveg.core.pipeline import FrontVegPipeline
-        show_info("Chargement de Depth-Anything V2...")
+        show_info("Loading Depth-Anything V2...")
         _GLOBAL_STATE["pipeline"] = FrontVegPipeline(config)
     return _GLOBAL_STATE["pipeline"]
 
 def get_sam3_stack(config):
-    """Charge SAM3 and the Tiler at once to ensure consistencye"""
+    """Charge SAM3 and the Tiler at once to ensure consistency"""
     if "sam3_inference" not in _GLOBAL_STATE:
         from frontveg.models.sam3_wrapper import SAM3Predictor
         from frontveg.core.sam3_tiler import SAM3TiledInference
@@ -43,19 +47,21 @@ def get_postprocessor():
 def make_frontveg_widget():
     @magicgui(
         call_button="Run Complete Pipeline",
-        prompt={"label": "Object to be segmented", "widget_type": "LineEdit"}, 
+        prompt={"label": "Object to be segmented", "widget_type": "LineEdit"},
         tile_overlap={"label": "Tile Overlap (SAM3)", "min": 0.1, "max": 0.9, "step": 0.05},
         sigma={"label": "Sigma (Depth)", "min": 0.1, "max": 5.0, "step": 0.1},
         peak_dist={"label": "Peak Distance (Depth)", "min": 1, "max": 20, "step": 0.05},
-        auto_save={"label": "Save CSV - Masks", "widget_type": "CheckBox"},
+        auto_save={"label": "Save CSV (statistics)", "widget_type": "CheckBox"},
+        save_mask={"label": "Save Mask (PNG)", "widget_type": "CheckBox"},
     )
     def widget(
-        image: "napari.layers.Image", 
+        image: "napari.layers.Image",
         prompt: str = "leaf",
         tile_overlap: float = 0.5,
         sigma: float = 1.1,
-        peak_dist: float = 1.0,
+        peak_dist: float = 8.0,
         auto_save: bool = False,
+        save_mask: bool = False,
 
     ) -> napari.types.LayerDataTuple:
         
@@ -65,15 +71,16 @@ def make_frontveg_widget():
         
         start_time = time.time() # for timing the whole process
 
-        # Configuration 
+        # Configuration — chemins absolus pour fonctionner quel que soit le CWD
         config = {
-            'sigma': sigma, 
-            'encoder': 'vitl', 
-            'depth_repo_path': 'external/Depth-Anything-V2',
-            'peak_dist': peak_dist, 
-            'peak_height': 0.5, 
-            'smoothed': True, 
-            'sam3_ckpt': 'checkpoints/sam3_ckpts/sam3.pt', 
+            'sigma': sigma,
+            'encoder': 'vitl',
+            'depth_repo_path': str(_PROJECT_ROOT / 'external' / 'Depth-Anything-V2'),
+            'depth_ckpt_path': str(_PROJECT_ROOT / 'checkpoints' / 'depthanything_ckpts'),
+            'peak_dist': peak_dist,
+            'peak_height': 0.5,
+            'smoothed': True,
+            'sam3_ckpt': str(_PROJECT_ROOT / 'checkpoints' / 'sam3_ckpts' / 'sam3.pt'),
             'tile_size': 640,
             'overlap': tile_overlap
         }
@@ -84,7 +91,7 @@ def make_frontveg_widget():
             sam3_tiler = get_sam3_stack(config)
             post_proc = get_postprocessor()
 
-            # 2. Napari (Numpy) -> PIL (pour SAM3)
+            # 2. Napari (Numpy) -> PIL (for SAM3)
             img_np = np.array(image.data)
             pil_img = Image.fromarray(img_np.astype('uint8'))
 
@@ -102,7 +109,7 @@ def make_frontveg_widget():
 
             # 5. Step 3: Fusion & Post-Processing
             show_info("Step 3: Mask Fusion...")
-            final_id_map, _ = post_proc.get_final_colored_map(id_map, mask_fv)
+            final_id_map, final_binary_mask = post_proc.get_final_colored_map(id_map, mask_fv)
 
             # --- Instance Analysis ---
             # We label each distinct object
@@ -133,25 +140,53 @@ def make_frontveg_widget():
             show_info(stats_msg)
             print(f"\n--- DETAILED STATISTICS ---\n{stats_msg}\n")
 
-            # Optionally, save results to CSV
+            # Dossier de sauvegarde — chemin absolu basé sur la racine du projet
+            save_dir = _PROJECT_ROOT / "outputs" / "napari_results"
+            base_name = getattr(image, "name", "image")
+
+            # Optionally, save statistics to CSV
             if auto_save:
-                save_dir = Path("outputs/napari_results")
                 save_dir.mkdir(parents=True, exist_ok=True)
-                
-                base_name = getattr(image, "name", "image")
                 csv_path = save_dir / f"{base_name}_{prompt}_stats.csv"
-                
+
                 with open(csv_path, mode='w', newline='') as f:
                     writer = csv.writer(f)
-                    writer.writerow(["ID_Instance", "Count", "Surface_Pixels", "Prompt", "Sigma"])
+                    writer.writerow(["ID_Instance", "Count", "Total_Area_Pixels", "Surface_Pixels", "Prompt", "Sigma", "Peak_Dist"])
                     for i, area in enumerate(areas):
-                        writer.writerow([i+1, count, area, prompt, sigma])
-                
-                show_info(f"Statistics exported: {csv_path.name}")
+                        writer.writerow([i+1, count, int(total_area), area, prompt, sigma, peak_dist])
+
+                show_info(f"CSV exported: {csv_path.name}")
+                print(f"[SAVE] CSV → {csv_path}")
+
+            # Optionally, save annotated mask as PNG
+            if save_mask:
+                save_dir.mkdir(parents=True, exist_ok=True)
+
+                # 1. Masque binaire (blanc = foreground, noir = background)
+                #    final_binary_mask est déjà en 0/255 uint8 — prêt à sauvegarder
+                binary_path = save_dir / f"{base_name}_{prompt}_mask_binary.png"
+                Image.fromarray(final_binary_mask).save(str(binary_path))
+
+                # 2. Masque colorisé par instance (chaque ID = une couleur)
+                #    On normalise les IDs 0..max → 0..255 pour appliquer un colormap
+                import cv2 as _cv2
+                if final_id_map.max() > 0:
+                    id_normalized = (final_id_map.astype(np.float32) / final_id_map.max() * 255).astype(np.uint8)
+                else:
+                    id_normalized = np.zeros_like(final_id_map, dtype=np.uint8)
+                colored = _cv2.applyColorMap(id_normalized, _cv2.COLORMAP_TURBO)
+                # Background (id=0) → noir
+                colored[final_id_map == 0] = 0
+                colored_path = save_dir / f"{base_name}_{prompt}_mask_colored.png"
+                _cv2.imwrite(str(colored_path), colored)
+
+                show_info(f"Masks saved: {binary_path.name} + {colored_path.name}")
+                print(f"[SAVE] Binary mask  → {binary_path}")
+                print(f"[SAVE] Colored mask → {colored_path}")
 
             show_info("Success !")
-            elapsed = time.time() - start_time 
-            show_info(f"Finished in {elapsed:.2f} seconds !") # time in seconds
+            elapsed = time.time() - start_time
+            show_info(f"Finished in {elapsed:.2f} seconds !")
             return (final_id_map, {"name": f"Result_{prompt}", "opacity": 0.8}, "labels")
 
 

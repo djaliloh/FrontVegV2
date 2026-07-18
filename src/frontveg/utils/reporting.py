@@ -34,8 +34,13 @@ class AnalysisReporter:
         
         # Mark peaks
         peaks = analysis_results['peaks']
-        plt.plot(x[peaks], y_smooth[peaks], "ro", label="Modes")
-        
+        plt.plot(x[peaks], y_smooth[peaks], "ro", label="Modes (Peaks)")
+         
+        # Mark valleys
+        if 'valleys' in analysis_results:
+            valley_indices = [v['index'] for v in analysis_results['valleys']]
+            plt.plot(x[valley_indices], y_smooth[valley_indices], "go", label="Valleys (Minima)")
+
         # Mark threshold
         opt_thresh = analysis_results['optimal_threshold']
         plt.axvline(opt_thresh, color="blue", linestyle="--", 

@@ -1,0 +1,17 @@
+torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+numpy==1.26.4
+opencv-python==4.8.1.78
+pillow
+scipy
+matplotlib
+setuptools==69.5.1 
+einops
+triton
+pycocotools
+pandas
+scikit-image
+scikit-learn
+decord
+psutil  
+
+ 

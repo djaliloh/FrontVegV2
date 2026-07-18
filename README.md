@@ -124,12 +124,12 @@ Designed for researchers needing to validate results or generate Ground Truth da
 2. Open an image.
 3. Use the **FrontVeg Widget (FrontVeg Studio)** to select your `Prompt` (e.g., "leaf) and adjust `Tile_overlap`, `Sigma`, `Peak_dist`,  `Auto_save`.
 4. Click **Run Complete Pipeline**.
-5. Export results and stats directly to `.csv` and `.png`.
+5. Export results and stats directly to `.csv` and/or `.png`.
 
 ### CLI (Batch Processing)
 For large-scale agricultural analysis:
 ```bash
-python main_final.py --input ./data/vineyard --output ./results  --peak_dist 1 --sigma 1.1 --smoothed --prompt "leaf" --sam3_ckpt ./checkpoints/sam3_ckpts/sam3.pt 
+python main_final.py --input ./data/vineyard --output ./results  --peak_dist 8 --sigma 1.1 --smoothed --prompt "leaf" --sam3_ckpt ./checkpoints/sam3_ckpts/sam3.pt 
 ```
 
 ---
@@ -146,17 +146,20 @@ The pipeline provides statistical outputs:
 If you use this work for your research, please cite our ECCV paper:
 ```bibtex
 @inproceedings{adjalil2026frontveg,
-  title={FrontVeg-SAM3: Geometric-Semantic Fusion for Foreground Orchard Phenotyping},
-  author={Your Name, et al.},
-  booktitle={Proceedings of the European Conference on Computer Vision (ECCV)},
+  title={FrontVeg-SAM3: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops Using
+Side View Monocular RGB Images},
+  author={A-D. Ousseini Hamza, et al.}, 
+  booktitle={Proceedings of the European Conference on Computer Vision (ECCV)}, 
   year={2026}
 }
 ```
+<!--  -->
 
 ## Contact
-- Abdoul Djalil Ousseini Hamza - Engineer, abdoul-djalil.ousseini-hamza@inrae.fr
-- Herearii Metuarea - PhD student, herearii.metuarea@univ-angers.fr
-- David Rousseau - Professor, david.rousseau@univ-angers.fr
+- Abdoul Djalil Ousseini Hamza - Engineer, [abdoul-djalil.ousseini-hamza@inrae.fr]
+- Herearii Metuarea - PhD student, [herearii.metuarea@univ-angers.fr]
+- Corentin Lothode - Researcher Engineer, [corentin.lothode@inrae.fr]
+- David Rousseau - Professor, [david.rousseau@univ-angers.fr]
 
 <!-- --- -->
 <!-- **Developed for the future of Digital Viticulture.** 🍷 🍎 -->
