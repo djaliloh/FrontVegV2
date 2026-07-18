@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc 
 
 # Environnements virtuels
 .env
@@ -33,3 +34,4 @@ outputs/
 # OS
 .DS_Store
 Thumbs.db
+
