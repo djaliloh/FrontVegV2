@@ -14,15 +14,17 @@
 **FrontVeg-V2** is a high-precision computer vision pipeline designed for automated phenotyping in arboriculture and viticulture. By fusing **monocular depth estimation** with **vision-language segmentation priors (SAM3)**, it isolates the foreground canopy from cluttered agricultural backgrounds, enabling accurate leaf area estimation and fruit counting.
 
 
-## 🌟 Key Features
+## Key Features
 
 * **Geometric-Semantic Fusion:** Uses depth-anything-v2 to filter out background rows, solving the "background noise" problem in dense orchards.
-* **Zero-Shot Adaptation:** Prompt-based segmentation (e.g., "leaf", "grapes", "apple", "orange") without retraining.
+* **Zero-Shot Adaptation:** Prompt-based segmentation (e.g., "leaf", "grapes", "diseased") without re-training.
 * **Dual-Interface:** * **CLI Mode:** Batch processing for large-scale datasets.
-    * **Napari Plugin:** Interactive "Human-in-the-loop" interface for high-fidelity annotation.
+    * **Napari Plugin:** Interactive "Human-in-the-loop" interface. 
 * **Advanced Phenotyping:** Automated calculation of **Total Area**, **Instance Count**, **Mean Size**, and **Standard Deviation** (exported via CSV).
-* **Efficiency:** Reduces manual annotation time from ~20 minutes to ~170 seconds per image.
+* **Efficiency**: Works with side-view RGB images. 
+**Perspective:** Can also serve as manual annotation interface, withch can reduces annotation time from ~20 minutes to ~170 seconds per image.
 
+ 
 
 ### Version Evolution: From V1 to V2
 
