@@ -27,6 +27,8 @@ checkpoints/
 external/
 data/
 outputs/
+output_release/
+grapes/
 
 # Jupyter
 .ipynb_checkpoints/

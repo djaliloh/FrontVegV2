@@ -9,9 +9,71 @@ from skimage.measure import label, regionprops
 from napari.utils.notifications import show_info, show_error
 from PIL import Image
 
-# Chemin absolu vers la racine du projet (frontveg2/)
-# src/napari_frontveg/__init__.py → ../../.. = racine
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+import os
+
+# Resolution based on environment variable or marker-based traversal to support packaged distribution
+def _has_frontveg_markers(path: Path) -> bool:
+    """Returns True if path contains both 'external/' and 'checkpoints/' subdirectories."""
+    return (path / "external").is_dir() and (path / "checkpoints").is_dir()
+
+
+def get_project_root() -> Path:
+    # 1. Priority: explicit environment variable set by the user
+    if "FRONTVEG_ROOT" in os.environ:
+        return Path(os.environ["FRONTVEG_ROOT"]).resolve()
+
+    # 2. Traverse up from the installed package file
+    #    Works for editable / development installs where __file__ is inside the repo.
+    for parent in Path(__file__).resolve().parents:
+        if _has_frontveg_markers(parent):
+            return parent
+
+    # 3. Traverse up from the current working directory
+    #    Works when the user launches napari from inside or near the repo.
+    for parent in Path.cwd().resolve().parents:
+        if _has_frontveg_markers(parent):
+            return parent
+        # Also check direct children of each ancestor (e.g. cwd parent contains FrontVeg2/)
+        try:
+            for child in parent.iterdir():
+                if child.is_dir() and _has_frontveg_markers(child):
+                    return child
+        except (PermissionError, OSError):
+            pass
+
+    # 4. Search common roots on this machine (home, Desktop, Documents, Downloads, …)
+    #    Scans 2 levels deep so it finds FrontVeg2 wherever it was placed.
+    home = Path.home()
+    search_roots = [
+        home,
+        home / "Desktop",
+        home / "Documents",
+        home / "Downloads",
+        home / "data",
+        home / "projects",
+        home / "repos",
+        home / "workspace",
+    ]
+    for root in search_roots:
+        if not root.is_dir():
+            continue
+        # Level 1: root itself
+        if _has_frontveg_markers(root):
+            return root
+        # Level 2: direct children of root
+        try:
+            for child in root.iterdir():
+                if child.is_dir() and _has_frontveg_markers(child):
+                    return child
+        except (PermissionError, OSError):
+            continue
+
+    # 5. Last resort: current working directory (user should set FRONTVEG_ROOT)
+    return Path.cwd()
+
+
+_PROJECT_ROOT = get_project_root()
+
 
 _GLOBAL_STATE = {}
 
@@ -31,7 +93,7 @@ def get_sam3_stack(config):
         from frontveg.core.sam3_tiler import SAM3TiledInference
         
         show_info("Loading SAM3 ...")
-        model = SAM3Predictor(checkpoint_path=config['sam3_ckpt'])
+        model = SAM3Predictor(checkpoint_path=config['sam3_ckpt'], repo_path=config['sam3_repo_path'])
         _GLOBAL_STATE["sam3_model"] = model
         _GLOBAL_STATE["sam3_inference"] = SAM3TiledInference(model, tile_size=config['tile_size'], overlap=config['overlap'])
     return _GLOBAL_STATE["sam3_inference"]
@@ -75,15 +137,27 @@ def make_frontveg_widget():
         config = {
             'sigma': sigma,
             'encoder': 'vitl',
-            'depth_repo_path': str(_PROJECT_ROOT / 'external' / 'Depth-Anything-V2'),
-            'depth_ckpt_path': str(_PROJECT_ROOT / 'checkpoints' / 'depthanything_ckpts'),
+            'depth_repo_path': os.environ.get('FRONTVEG_DEPTH_REPO', str(_PROJECT_ROOT / 'external' / 'Depth-Anything-V2')),
+            'depth_ckpt_path': os.environ.get('FRONTVEG_DEPTH_CKPT_DIR', str(_PROJECT_ROOT / 'checkpoints' / 'depthanything_ckpts')),
             'peak_dist': peak_dist,
             'peak_height': 0.5,
             'smoothed': True,
-            'sam3_ckpt': str(_PROJECT_ROOT / 'checkpoints' / 'sam3_ckpts' / 'sam3.pt'),
+            'sam3_ckpt': os.environ.get('FRONTVEG_SAM3_CKPT', str(_PROJECT_ROOT / 'checkpoints' / 'sam3_ckpts' / 'sam3.pt')),
+            'sam3_repo_path': os.environ.get('FRONTVEG_SAM3_REPO', str(_PROJECT_ROOT / 'external' / 'sam3')),
             'tile_size': 640,
             'overlap': tile_overlap
         }
+
+        # Check critical paths
+        if not Path(config['depth_repo_path']).exists():
+            show_error(f"Missing Depth-Anything-V2 at {config['depth_repo_path']}. Use FRONTVEG_DEPTH_REPO env var.")
+            return
+        if not Path(config['sam3_repo_path']).exists():
+            show_error(f"Missing SAM3 repo at {config['sam3_repo_path']}. Use FRONTVEG_SAM3_REPO env var.")
+            return
+        if not Path(config['sam3_ckpt']).exists():
+            show_error(f"Missing SAM3 checkpoint at {config['sam3_ckpt']}. Use FRONTVEG_SAM3_CKPT env var.")
+            return
 
         try:
             # 1. Access to models (with lazy loading)

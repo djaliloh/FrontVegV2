@@ -171,4 +171,8 @@ if __name__ == "__main__":
 
 
 
-# python main_final.py --input F:\EXPERIMENTS-ECCV-annot_code\annotaion-labelbox\vine\fruit\images --output F:\EXPERIMENTS-ECCV-annot_code\annotaion-labelbox\vine\fruit\fvg_predictions --sam3_ckpt ./checkpoints/sam3_ckpts/sam3.pt --prompt "grapes" --peak_dist 8  --sigma 1.1 --smoothed
+# python main_final.py --input F:\EXPERIMENTS-ECCV-annot_code\annotaion-labelbox\vine\fruit\images --output F:\EXPERIMENTS-ECCV-annot_code\annotaion-labelbox\vine\fruit\fvg_predictions --sam3_ckpt ./checkpoints/sam3_ckpts/sam3.pt --prompt   --peak_dist 8  --sigma 1.1 --smoothed
+
+# numpy==1.26.4
+# opencv-python==4.8.1.78
+# openpyxl==3.1.5

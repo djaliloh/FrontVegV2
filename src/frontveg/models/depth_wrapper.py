@@ -18,6 +18,12 @@ class DepthAnythingWrapper:
         if repo_path is None:
             raise ValueError("Depth repo path must be explicitly provided")     
         
+        if not os.path.exists(repo_path):
+            raise FileNotFoundError(
+                f"Depth-Anything-V2 repository not found at '{repo_path}'. "
+                "Please clone it or set FRONTVEG_DEPTH_REPO environment variable."
+            )
+
         # Ajout dynamique du repo externe au path
         if repo_path not in sys.path:
             sys.path.append(repo_path)
@@ -32,6 +38,8 @@ class DepthAnythingWrapper:
         }
 
         self.model = DepthAnythingV2(**self.configs[encoder])
+        # print("[DEBUG] : checkpoint_path ",checkpoint_path)
+        # exit()
         self.ckpt_path = f'{checkpoint_path}/depth_anything_v2_{encoder}.pth'  
         self.model.load_state_dict(torch.load(self.ckpt_path, map_location='cpu', weights_only=True))
         self.model.to(self.device).eval()
@@ -46,3 +54,6 @@ class DepthAnythingWrapper:
     
 
 
+
+# # Editable install with no version control (frontvegV2==0.1.0)
+# -e c:\users\utilisateur\desktop\fvg2\frontveg2
