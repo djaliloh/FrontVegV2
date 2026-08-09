@@ -1,8 +1,8 @@
 # FrontVeg-V2: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops
 
-<img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;">
+<!-- <img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
 
-<!-- <img src="assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
+<img src="assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;">
 
 [![Napari Hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/link/frontvegV2)](https://www.napari-hub.org/plugins/frontvegV2)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) 
@@ -10,9 +10,9 @@
 
 # frontveg-v2
 
-A napari plugin for zero-shot plant trait and vegetation segmentation using **Depth-Anything V2** and **SAM3**.
+A napari plugin for Automated plant organ segmentation and leaf area estimation in trellised crops.
 
-> ⚠️ **Important:** SAM3 requires gated model weights from Hugging Face. Please follow the setup instructions below before running the plugin.
+<!-- > ⚠️ **Important:** SAM3 requires gated model weights from Hugging Face. Please follow the setup instructions below before running the plugin. -->
 
 ---
 
@@ -44,11 +44,11 @@ A napari plugin for zero-shot plant trait and vegetation segmentation using **De
 This option automatically sets up the relative paths for `external/` submodules and `checkpoints/`.
 
 ```bash
-# 1. Clone the repository with submodules
-git clone https://github.com/djaliloh/FrontVeg2.git
-cd FrontVeg2
+# 1. Clone the repository 
+git clone https://github.com/djaliloh/FrontVegV2.git
+cd FrontVegV2
 
-# 2. Clone and install external models in `external/`:
+# 2. Clone and install external models in the external/ folder:
 cd external
 
 # Depth-Anything V2
@@ -60,11 +60,16 @@ cd sam3
 pip install -e .
 cd ../..
 
-# 3. Install in editable mode
+# 3. Install in editable mode 
 pip install -e .
 ```
 
-### Option 2: Direct PyPI Install + Environment Variables
+### Option 2: Direct PyPI Install (Coming Soon) 
+
+> ℹ️ **Note:** Standalone installation via `pip install frontvegv2` will be released soon.
+> Currently, please follow **Option 1** to use the plugin.
+
+<!-- ### Option 2: Direct PyPI Install + Environment Variables  -->
 
 <!-- ```powershell
 # If you installed the plugin directly via PyPI (pip install frontvegv2), you must specify the paths to your local SAM3 code repository and checkpoints using environment variables : 
@@ -117,8 +122,8 @@ napari
 - Missing Checkpoints Error: Verify that sam3.pt exists at the expected path or set FRONTVEG_SAM3_CKPT manually.
 
 
-## License
-License is pending.
+<!-- ## License
+License is pending. -->
 
 ## Contact
 - David Rousseau - Professor, david.rousseau@univ-angers.fr
