@@ -10,7 +10,7 @@
 
 # napari-frontveg-v2
 
-A napari plugin for zero-shot plant trait and vegetation segmentation using **Depth-Anything V2** and **SAM3**.
+<!-- A napari plugin for zero-shot plant trait and vegetation segmentation using **Depth-Anything V2** and **SAM3**. -->
 
 > ⚠️ **Important:** SAM3 requires gated model weights from Hugging Face. Please follow the setup instructions below before running the plugin.
 
