@@ -1,16 +1,16 @@
 # FrontVeg-V2: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops
 
-<!-- <img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
+<img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;">
 
-<img src="assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;">
+<!-- <img src="assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
 
 [![Napari Hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/link/frontvegV2)](https://www.napari-hub.org/plugins/frontvegV2)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) 
 
 
-# napari-frontveg-v2
+# frontveg-v2
 
-<!-- A napari plugin for zero-shot plant trait and vegetation segmentation using **Depth-Anything V2** and **SAM3**. -->
+A napari plugin for zero-shot plant trait and vegetation segmentation using **Depth-Anything V2** and **SAM3**.
 
 > ⚠️ **Important:** SAM3 requires gated model weights from Hugging Face. Please follow the setup instructions below before running the plugin.
 
@@ -66,7 +66,7 @@ pip install -e .
 
 ### Option 2: Direct PyPI Install + Environment Variables
 
-```powershell
+<!-- ```powershell
 # If you installed the plugin directly via PyPI (pip install frontvegv2), you must specify the paths to your local SAM3 code repository and checkpoints using environment variables : 
 
 # Windows (PowerShell):
@@ -85,7 +85,7 @@ export FRONTVEG_DEPTH_REPO="<path_to_depth_anything_v2_repo>"
 export FRONTVEG_DEPTH_CKPT_DIR="<path_to_depth_ckpts_folder>"
 
 napari
-```
+``` -->
 
 
 
@@ -121,7 +121,7 @@ napari
 License is pending.
 
 ## Contact
-- David Rousseau - Professor, [david.rousseau@univ-angers.fr]
-- Corentin Lothode - Researcher Engineer, [corentin.lothode@inrae.fr]
-- Herearii Metuarea - PhD student, [herearii.metuarea@univ-angers.fr]
-- Abdoul Djalil Ousseini Hamza - Engineer, [abdoul-djalil.ousseini-hamza@inrae.fr]
+- David Rousseau - Professor, david.rousseau@univ-angers.fr
+- Corentin Lothode - Researcher Engineer, corentin.lothode@inrae.fr
+- Herearii Metuarea - PhD student, herearii.metuarea@univ-angers.fr
+- Abdoul Djalil Ousseini Hamza - Engineer, abdoul-djalil.ousseini-hamza@inrae.fr
