@@ -20,8 +20,8 @@ dist/
 
 # Checkpoints (modèles lourds)
 # checkpoints/
-# *.pt
-# *.pth
+*.pt
+*.pth
 
 # Dossiers externes (datasets, deps non versionnées)
 # external/ 
@@ -32,6 +32,7 @@ outputs/
 output_release/
 grapes/
 ablation_study_files/
+results
 
 # Jupyter
 .ipynb_checkpoints/

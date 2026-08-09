@@ -74,8 +74,9 @@ pip install -e .
 
 ### Option 2: Direct PyPI Install (Coming Soon) 
 
-> ℹ️ **Note:** Standalone installation via `pip install frontvegv2` will be released soon.
-> Currently, please follow **Option 1** to use the plugin.
+> ℹ️ **Note:** Standalone installation via `pip install` will be released soon. 
+> In the meantime, please follow **Option 1** to use the plugin. 
+
 
 <!-- ### Option 2: Direct PyPI Install + Environment Variables  -->
 
