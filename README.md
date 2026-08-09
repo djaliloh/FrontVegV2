@@ -1,4 +1,4 @@
-# FrontVeg-V2: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops
+# FrontVeg V2: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops
 
 <!-- <img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
 
@@ -12,7 +12,7 @@
 
 
 
-# FrontVeg-V2
+# FrontVeg V2
 
 A napari plugin for automated plant organ segmentation and leaf area estimation in trellised crops using side view monocular RGB images.
 
