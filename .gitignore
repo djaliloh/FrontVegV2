@@ -19,16 +19,19 @@ dist/
 *.log
 
 # Checkpoints (modèles lourds)
-checkpoints/
+# checkpoints/
 *.pt
 *.pth
 
 # Dossiers externes (datasets, deps non versionnées)
-external/
+# external/ 
+Depth-Anything-V2/
+sam3/
 data/
 outputs/
 output_release/
 grapes/
+ablation_study_files/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -37,3 +40,9 @@ grapes/
 .DS_Store
 Thumbs.db
 
+
+README_old.md
+README_presqbon.md
+ftveg_napari_dependences.txt
+test.py
+requirements.txt

@@ -1,51 +1,84 @@
-# FrontVeg-V2: Foreground-Aware Zero-Shot Plant Trait Segmentation
+# FrontVeg-V2: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops
 
 <img src="assets/logo.png" alt="Project Logo" width=3000>
 
 [![Napari Hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/link/napari-frontveg)](https://www.napari-hub.org/plugins/napari-frontveg)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-We present **FrontVeg V2**, a high-precision computer vision pipeline designed for automated phenotyping in **viticulture** and **arboriculture**. By fusing **monocular depth estimation** with **vision-language segmentation priors (SAM3)**, it isolates the foreground canopy from cluttered agricultural backgrounds, enabling accurate leaf area estimation and fruit counting.
 
-## Key Features
+# napari-frontveg-v2
 
-* **Geometric-Semantic Fusion:** Uses Depth-Anything-V2 to filter out background rows, solving the "background noise" problem in dense orchards.
-* **Zero-Shot Adaptation:** Prompt-based segmentation (e.g., "leaf", "grapes", "diseased") without re-training.
-* **Napari Plugin:** Interactive "Human-in-the-loop" interface for researchers.
-* **Advanced Phenotyping:** Automated calculation of **Total Area**, **Instance Count**, **Mean Size**, and **Standard Deviation**.
+A napari plugin for zero-shot plant trait and vegetation segmentation using **Depth-Anything V2** and **SAM3**.
+
+> ⚠️ **Important:** SAM3 requires gated model weights from Hugging Face. Please follow the setup instructions below before running the plugin.
+
+---
+
+## Prerequisites
+
+1. **Request SAM3 Weights Access:**
+   Request access to the SAM3 checkpoint on [Hugging Face](https://huggingface.co/facebook/sam3). Once approved, download `sam3.pt`.
+
+2. **Download Depth-Anything V2 Weights:**
+   Download the Large model checkpoint (`depth_anything_v2_vitl.pth`) from the official [Depth-Anything V2 repository](https://github.com/DepthAnything/Depth-Anything-V2).
+
+3. **Place your downloaded checkpoints inside the project folder:** 
+   - Place sam3.pt into: checkpoints/sam3_ckpts/sam3.pt
+   - Place depth checkpoints into: checkpoints/depthanything_ckpts/
+
+---
 
 ## Installation
 
-### 1. Install the Package
+### Option 1: Recommended (Git Clone + Editable Install)
 
-Install FrontVeg V2 and its plugin via PyPI:
+This option automatically sets up the relative paths for `external/` submodules and `checkpoints/`.
+
 ```bash
-pip install frontvegV2
+# 1. Clone the repository with submodules
+git clone https://github.com/djaliloh/FrontVeg2.git
+cd FrontVeg2
+
+# 2. Clone and install external models in `external/`:
+cd external
+
+# Depth-Anything V2
+git clone https://github.com/DepthAnything/Depth-Anything-V2.git
+
+# SAM3
+git clone https://github.com/facebookresearch/sam3.git
+cd sam3
+pip install -e .
+cd ../..
+
+# 3. Install in editable mode
+pip install -e .
 ```
-*Note: This will install napari and the core runtime dependencies.*
 
-### 2. Download Required Models
+### Option 2: Direct PyPI Install + Environment Variables
 
-FrontVeg V2 relies on **SAM3** and **Depth-Anything-V2**, which require manual downloading of their checkpoints and source code. 
+```powershell
+# If you installed the plugin directly via PyPI (pip install frontvegv2), you must specify the paths to your local SAM3 code repository and checkpoints using environment variables : 
 
-1. **Depth-Anything-V2**: 
-   - Clone the repo: `git clone https://github.com/DepthAnything/Depth-Anything-V2.git`
-   - Download the pre-trained weights (e.g., `depth_anything_v2_vitl.pth`).
-2. **SAM3**: 
-   - Clone the repo: `git clone https://github.com/facebookresearch/sam3.git`
-   - Install it: `cd sam3 && pip install -e .`
-   - Download the SAM3 weights (e.g., `sam3.pt`).
+# Windows (PowerShell):
+$env:FRONTVEG_SAM3_REPO = "<path_to_sam3_repo>"
+$env:FRONTVEG_SAM3_CKPT = "<path_to_sam3.pt>"
+$env:FRONTVEG_DEPTH_REPO = "<path_to_depth_anything_v2_repo>"
+$env:FRONTVEG_DEPTH_CKPT_DIR = "<path_to_depth_ckpts_folder>"
 
-### 3. Configure Paths
+napari
 
-By default, the plugin will look for models in `checkpoints/` and `external/` directories relative to your current working directory. 
 
-If your models are stored elsewhere, set the following environment variables before launching napari:
-```bash
-export FRONTVEG_SAM3_CKPT="/path/to/checkpoints/sam3.pt"
-export FRONTVEG_DEPTH_REPO="/path/to/Depth-Anything-V2"
-export FRONTVEG_DEPTH_CKPT_DIR="/path/to/depth_checkpoints_folder"
+# Linux / macOS (Bash):
+export FRONTVEG_SAM3_REPO="<path_to_sam3_repo>"
+export FRONTVEG_SAM3_CKPT="<path_to_sam3.pt>"
+export FRONTVEG_DEPTH_REPO="<path_to_depth_anything_v2_repo>"
+export FRONTVEG_DEPTH_CKPT_DIR="<path_to_depth_ckpts_folder>"
+
+napari
 ```
+
+
 
 ## Usage in Napari
 
@@ -55,16 +88,31 @@ export FRONTVEG_DEPTH_CKPT_DIR="/path/to/depth_checkpoints_folder"
 4. Set your prompt (e.g., "leaf") and adjust parameters (Tile Overlap, Sigma, etc.).
 5. Click **Run Complete Pipeline**.
 
-## Citing FrontVeg V2
+
+<!-- ## Citing FrontVeg V2
 
 ```bibtex
-@inproceedings{adjalil2026frontveg,
-  title={FrontVeg-SAM3: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops Using Side View Monocular RGB Images},
+@article{djaliloh2026frontvegv2,
+  title={FrontVeg-V2: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops Using Side View Monocular RGB Images},
   author={A-D. Ousseini Hamza, et al.}, 
-  booktitle={Proceedings of the European Conference on Computer Vision (ECCV)}, 
-  year={2026}
+  journal={SoftwareX}, 
+  year={2026},
+  url={https://github.com/djaliloh/FrontVeg2} 
 }
-```
+```  -->
+
+## Troubleshooting
+
+- Missing Module 'triton': On Windows, install the Windows-compatible Triton build: pip install triton-windows.
+- RuntimeError: mat1 and mat2 must have the same dtype: If running on GPUs older than NVIDIA Ampere (e.g., GTX 10xx, RTX 20xx), ensure autocast is set to float16 or float32 instead of bfloat16.
+- Missing Checkpoints Error: Verify that sam3.pt exists at the expected path or set FRONTVEG_SAM3_CKPT manually.
+
 
 ## License
 License is pending.
+
+## Contact
+- David Rousseau - Professor, [david.rousseau@univ-angers.fr]
+- Corentin Lothode - Researcher Engineer, [corentin.lothode@inrae.fr]
+- Herearii Metuarea - PhD student, [herearii.metuarea@univ-angers.fr]
+- Abdoul Djalil Ousseini Hamza - Engineer, [abdoul-djalil.ousseini-hamza@inrae.fr]

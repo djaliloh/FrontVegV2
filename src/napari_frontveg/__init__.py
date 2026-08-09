@@ -71,9 +71,7 @@ def get_project_root() -> Path:
     # 5. Last resort: current working directory (user should set FRONTVEG_ROOT)
     return Path.cwd()
 
-
 _PROJECT_ROOT = get_project_root()
-
 
 _GLOBAL_STATE = {}
 
@@ -105,6 +103,8 @@ def get_postprocessor():
     return _GLOBAL_STATE["postproc"]
 
 # --- WIDGET NAPARI --- 
+
+# print("DEBUG: _PROJECT_ROOT = ", _PROJECT_ROOT)  
 
 def make_frontveg_widget():
     @magicgui(
@@ -148,16 +148,41 @@ def make_frontveg_widget():
             'overlap': tile_overlap
         }
 
+        # # Check critical paths
+        # if not Path(config['depth_repo_path']).exists():
+        #     show_error(f"Missing Depth-Anything-V2 at {config['depth_repo_path']}. Use FRONTVEG_DEPTH_REPO env var.")
+        #     return
+        # if not Path(config['sam3_repo_path']).exists():
+        #     show_error(f"Missing SAM3 repo at {config['sam3_repo_path']}. Use FRONTVEG_SAM3_REPO env var.")
+        #     return
+        # if not Path(config['sam3_ckpt']).exists():
+        #     show_error(f"Missing SAM3 checkpoint at {config['sam3_ckpt']}. Use FRONTVEG_SAM3_CKPT env var.")
+        #     return
+
         # Check critical paths
+        missing_resources = []
+
         if not Path(config['depth_repo_path']).exists():
-            show_error(f"Missing Depth-Anything-V2 at {config['depth_repo_path']}. Use FRONTVEG_DEPTH_REPO env var.")
-            return
+            missing_resources.append(f"- Missing Depth-Anything-V2 at: {config['depth_repo_path']}")
+
         if not Path(config['sam3_repo_path']).exists():
-            show_error(f"Missing SAM3 repo at {config['sam3_repo_path']}. Use FRONTVEG_SAM3_REPO env var.")
-            return
+            missing_resources.append(f"- Missing SAM3 repo at: {config['sam3_repo_path']}")
+
         if not Path(config['sam3_ckpt']).exists():
-            show_error(f"Missing SAM3 checkpoint at {config['sam3_ckpt']}. Use FRONTVEG_SAM3_CKPT env var.")
+            missing_resources.append(f"- Missing SAM3 checkpoint at: {config['sam3_ckpt']}")
+
+        if missing_resources:
+            error_msg = (
+                "Incomplete FrontVeg setup!\n\n"
+                + "\n".join(missing_resources) + "\n\n"
+                "Please check the README setup steps:\n"
+                "1. Ensure submodules are cloned in 'external/'\n"
+                "2. Ensure checkpoints are downloaded in 'checkpoints/'\n"
+                "3. Or set the FRONTVEG_ROOT environment variable to your project folder."
+            )
+            show_error(error_msg)
             return
+
 
         try:
             # 1. Access to models (with lazy loading)

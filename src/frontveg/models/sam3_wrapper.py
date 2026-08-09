@@ -27,7 +27,8 @@ class SAM3Predictor:
 
     def predict_crop(self, pil_crop, prompt):
         """Predicted on a single tile (crop)."""
-        with torch.no_grad():
+        dtype = torch.float16 if torch.cuda.get_device_capability()[0] >= 7 else torch.float32
+        with torch.no_grad(), torch.autocast(device_type="cuda", dtype=dtype):
             inputs = self.processor.set_image(pil_crop)
             inputs = self.processor.set_text_prompt(state=inputs, prompt=prompt)
         
