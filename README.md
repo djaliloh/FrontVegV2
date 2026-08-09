@@ -2,17 +2,25 @@
 
 <!-- <img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
 
+<!-- ![Logo](https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png)  -->
+
 <img src="assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;">
 
-[![Napari Hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/link/frontvegV2)](https://www.napari-hub.org/plugins/frontvegV2)
+[![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/frontvegv2)](https://napari-hub.org/plugins/frontvegv2.html)
+
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) 
 
 
-# frontveg-v2
 
-A napari plugin for Automated plant organ segmentation and leaf area estimation in trellised crops.
+# FrontVeg-V2
 
-<!-- > ⚠️ **Important:** SAM3 requires gated model weights from Hugging Face. Please follow the setup instructions below before running the plugin. -->
+A napari plugin for automated plant organ segmentation and leaf area estimation in trellised crops using side view monocular RGB images.
+
+<!-- > ⚠️ **Important:** SAM3 requires gated model weights from Hugging Face. Please follow the setup instructions below before running the plugin. -->  
+
+
+
+<!-- [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/frontveg)](https://napari-hub.org/plugins/frontveg) -->
 
 ---
 
