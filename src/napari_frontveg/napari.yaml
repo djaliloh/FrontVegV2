@@ -1,11 +1,12 @@
-name: frontvegV2 
+name: frontvegV2
 display_name: FrontVeg V2
 contributions:
   widgets:
     - command: frontvegV2.make_frontveg_widget
-      display_name: FrontVeg V2 Studio  
+      display_name: FrontVeg V2 Studio
   commands:
     - id: frontvegV2.make_frontveg_widget
       python_name: napari_frontveg:make_frontveg_widget
       title: Open FrontVeg V2
+
 

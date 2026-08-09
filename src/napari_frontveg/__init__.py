@@ -164,12 +164,17 @@ def make_frontveg_widget():
 
         if not Path(config['depth_repo_path']).exists():
             missing_resources.append(f"- Missing Depth-Anything-V2 at: {config['depth_repo_path']}")
+        
+        if not Path(config['depth_ckpt_path']).exists():
+            missing_resources.append(f"- Missing Depth checkpoint folder at: {config['depth_ckpt_path']}")
 
         if not Path(config['sam3_repo_path']).exists():
             missing_resources.append(f"- Missing SAM3 repo at: {config['sam3_repo_path']}")
 
         if not Path(config['sam3_ckpt']).exists():
             missing_resources.append(f"- Missing SAM3 checkpoint at: {config['sam3_ckpt']}")
+        if not Path(config['depth_ckpt_path']).exists():
+            missing_resources.append(f"- Missing Depth checkpoint folder at: {config['depth_ckpt_path']}")
 
         if missing_resources:
             error_msg = (

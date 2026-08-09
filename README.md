@@ -1,9 +1,11 @@
 # FrontVeg-V2: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops
 
-<img src="assets/logo.png" alt="Project Logo" width=3000>
+<img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;">
 
-[![Napari Hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/link/napari-frontveg)](https://www.napari-hub.org/plugins/napari-frontveg)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+<!-- <img src="assets/logo.png" alt="Project Logo" width=3000> -->
+
+[![Napari Hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/link/frontvegV2)](https://www.napari-hub.org/plugins/frontvegV2)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) 
 
 
 # napari-frontveg-v2
@@ -16,13 +18,20 @@ A napari plugin for zero-shot plant trait and vegetation segmentation using **De
 
 ## Prerequisites
 
-1. **Request SAM3 Weights Access:**
+1. **Create a virtual environment** 
+   ```bash
+   conda create -n <env_name> python=3.10 -y
+   conda activate <env_name>
+   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+   ```
+
+2. **Request SAM3 Weights Access:**
    Request access to the SAM3 checkpoint on [Hugging Face](https://huggingface.co/facebook/sam3). Once approved, download `sam3.pt`.
 
-2. **Download Depth-Anything V2 Weights:**
+3. **Download Depth-Anything V2 Weights:**
    Download the Large model checkpoint (`depth_anything_v2_vitl.pth`) from the official [Depth-Anything V2 repository](https://github.com/DepthAnything/Depth-Anything-V2).
 
-3. **Place your downloaded checkpoints inside the project folder:** 
+4. **Place your downloaded checkpoints inside the project folder:** 
    - Place sam3.pt into: checkpoints/sam3_ckpts/sam3.pt
    - Place depth checkpoints into: checkpoints/depthanything_ckpts/
 
