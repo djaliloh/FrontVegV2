@@ -1,8 +1,8 @@
 # FrontVeg-V2: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops
 
-<img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;">
+<!-- <img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
 
-<!-- <img src="assets/logo.png" alt="Project Logo" width=3000> -->
+<img src="assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;">
 
 [![Napari Hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/link/frontvegV2)](https://www.napari-hub.org/plugins/frontvegV2)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) 
