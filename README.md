@@ -4,7 +4,9 @@
 
 <!-- ![Logo](https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png)  -->
 
-<img src="assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;">
+<!-- <img src="assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
+
+<img src="https://i.imgur.com/NcQWGjS.png" alt="Project Logo" style="max-width: 100%; height: auto;">
 
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/frontvegv2)](https://napari-hub.org/plugins/frontvegv2.html)
 
