@@ -6,11 +6,16 @@
 
 <!-- <img src="assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
 
-<img src="https://i.imgur.com/NcQWGjS.png" alt="Project Logo" style="max-width: 100%; height: auto;">
+<!-- <img src="https://i.imgur.com/NcQWGjS.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
+<img src="https://raw.githubusercontent.com/djaliloh/Deep-learning-training/main/results/logo.png" alt="FrontVeg V2 Logo" style="max-width: 100%; height: auto;">
 
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/frontvegv2)](https://napari-hub.org/plugins/frontvegv2.html)
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) 
+[![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat&logo=PyTorch&logoColor=white)](https://pytorch.org/)
+[![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
+[![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/djaliloh/FrontVegV2)](https://github.com/djaliloh/FrontVegV2)
 
 
 
