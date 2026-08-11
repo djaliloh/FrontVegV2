@@ -29,10 +29,10 @@ A napari plugin for automated plant organ segmentation and leaf area estimation 
 
 <!-- > ⚠️ **Important:** SAM3 requires gated model weights from Hugging Face. Please follow the setup instructions below before running the plugin. -->  
 
-Some examples of organ segmentation on different trellised crops:
+Some examples of organ segmentation on different trellised crops: 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/djaliloh/Deep-learning-training/main/results/frontvegv2_examples_grid.png" alt="FrontVeg V2 Segmentation Examples Grid" style="max-width: 100%; height: auto;">
+  <img src="https://raw.githubusercontent.com/djaliloh/Deep-learning-training/main/results/frontvegv2_expl_grid.png" alt="FrontVeg V2 Segmentation Examples Grid" style="max-width: 100%; height: auto;">
 </p>
 
 ---
