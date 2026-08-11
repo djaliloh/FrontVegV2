@@ -154,8 +154,8 @@ This research used computing resources from the **GLiCID Computing Facility** (L
 The authors would like to thank **Sirine Gharbi**, **Oumaima Karia**, **Justin Langlois**, **Paul**, and **Thomas** for their valuable assistance in annotating the image dataset used in this study.
 
 ## Contact
-Imhorphen team, bioimaging research group,\\
-IRHS, UMR 1345, INRAE,\\ 
+Imhorphen team, bioimaging research group, <br>
+IRHS, UMR 1345, INRAE, <br>
 42 Rue Georges Morel, 49070 Beaucouzé, France
 
 - David Rousseau - Professor, david.rousseau@univ-angers.fr
