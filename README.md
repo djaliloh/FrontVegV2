@@ -137,13 +137,6 @@ napari
 }
 ```  -->
 
-## Troubleshooting
-
-- Missing Module 'triton': On Windows, install the Windows-compatible Triton build: pip install triton-windows.
-- RuntimeError: mat1 and mat2 must have the same dtype: If running on GPUs older than NVIDIA Ampere (e.g., GTX 10xx, RTX 20xx), ensure autocast is set to float16 or float32 instead of bfloat16.
-- Missing Checkpoints Error: Verify that sam3.pt exists at the expected path or set FRONTVEG_SAM3_CKPT manually.
-
-
 <!-- ## License
 License is pending. -->
 
@@ -164,3 +157,10 @@ IRHS, UMR 1345, INRAE, <br>
 - Corentin Lothode - Researcher Engineer, corentin.lothode@inrae.fr
 - Herearii Metuarea - PhD student, herearii.metuarea@univ-angers.fr
 - Abdoul Djalil Ousseini Hamza - Engineer, abdoul-djalil.ousseini-hamza@inrae.fr
+
+
+## Troubleshooting
+
+- Missing Module 'triton': On Windows, install the Windows-compatible Triton build: pip install triton-windows.
+- RuntimeError: mat1 and mat2 must have the same dtype: If running on GPUs older than NVIDIA Ampere (e.g., GTX 10xx, RTX 20xx), ensure autocast is set to float16 or float32 instead of bfloat16.
+- Missing Checkpoints Error: Verify that sam3.pt exists at the expected path or set FRONTVEG_SAM3_CKPT manually.
