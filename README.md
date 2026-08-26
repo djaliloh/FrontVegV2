@@ -39,7 +39,10 @@ Some examples of organ segmentation on different trellised crops:
 
 ## Prerequisites
 
-1. **Create a virtual environment** 
+1. **Create and activate a virtual environment** 
+
+We recommend using Python 3.10 and cuda 12.1:
+
    ```bash
    conda create -n <env_name> python=3.10 -y
    conda activate <env_name>
@@ -53,12 +56,12 @@ Some examples of organ segmentation on different trellised crops:
    Download the Large model checkpoint (`depth_anything_v2_vitl.pth`) from the official [Depth-Anything V2 repository](https://github.com/DepthAnything/Depth-Anything-V2).
 
 4. **Place your downloaded checkpoints inside the project folder:** 
-   - Place sam3.pt into: checkpoints/sam3_ckpts/sam3.pt
+   - Place sam3.pt into: checkpoints/sam3_ckpts/
    - Place depth checkpoints into: checkpoints/depthanything_ckpts/
 
 ---
 
-## Installation
+<!-- ## Installation
 
 ### Option 1: Recommended (Git Clone + Editable Install)
 
@@ -85,10 +88,125 @@ cd ../..
 pip install -e .
 ```
 
-### Option 2: Direct PyPI Install (Coming Soon) 
+> ℹ️ **Note:** This is the development repository. A standalone installation via `git clone` will be released soon. 
+> In the meantime, please follow **Option 2** to use the plugin.  
 
-> ℹ️ **Note:** Standalone installation via `pip install` will be released soon. 
-> In the meantime, please follow **Option 1** to use the plugin. 
+
+### Option 2: Direct PyPI Install
+
+```bash 
+
+pip install frontvegV2
+```  -->
+<!-- ################################################### -->
+
+
+## Installation
+
+FrontVeg V2 requires a dedicated Conda environment and two external models: **Depth-Anything V2** and **SAM3**.
+
+> **Note:** The FrontVeg V2 GitHub repository is currently private. Therefore, users should install the FrontVeg V2 package from PyPI rather than cloning the main repository.
+
+<!-- ### 1. Create and activate a Conda environment
+
+We recommend using Python 3.10:
+
+```bash
+conda create -n frontvegv2 python=3.10
+conda activate frontvegv2
+``` -->
+
+### 1. Clone and install the external models
+
+Create a directory for the external dependencies:
+
+```bash
+mkdir external
+cd external
+```
+
+#### Depth-Anything V2
+
+```bash
+git clone https://github.com/DepthAnything/Depth-Anything-V2.git
+```
+
+Depth-Anything V2 does not need to be installed as a package at this stage; FrontVeg V2 uses it from the `external/` directory.
+
+#### SAM3
+
+```bash
+git clone https://github.com/facebookresearch/sam3.git
+cd sam3
+pip install -e .
+cd ..
+```
+
+You should now have:
+
+```text
+external/
+├── Depth-Anything-V2/
+└── sam3/
+```
+
+### 2. Install FrontVeg V2 from PyPI
+
+Once the external dependencies have been installed, return to the directory where you want to use FrontVeg V2 and run:
+
+```bash
+pip install frontvegV2
+```
+
+This installs the FrontVeg V2 package and its Python dependencies.
+
+### 3. Check the installation
+
+You can verify that FrontVeg V2 is available with:
+
+```bash
+python -c "import frontveg; print('FrontVeg V2 installed successfully')"
+```
+
+> **Important:** The external repositories must be installed before running FrontVeg V2. In particular, **SAM3 must be installed with `pip install -e .`** from its cloned repository.
+
+### Alternative: Development Installation
+
+If you have access to the private FrontVeg V2 GitHub repository and want to modify the source code, you can clone the repository and install it in editable mode:
+
+```bash
+git clone https://github.com/djaliloh/FrontVegV2.git
+cd FrontVegV2
+
+mkdir external
+cd external
+
+# Depth-Anything V2
+git clone https://github.com/DepthAnything/Depth-Anything-V2.git
+
+# SAM3
+git clone https://github.com/facebookresearch/sam3.git
+cd sam3
+pip install -e .
+
+cd ../..
+
+# Install FrontVeg V2 in editable mode
+pip install -e .
+```
+
+This development installation is intended for contributors and users who need direct access to the source code.
+
+
+
+
+<!-- ################################################# -->
+
+
+
+
+
+
 
 
 <!-- ### Option 2: Direct PyPI Install + Environment Variables  -->
