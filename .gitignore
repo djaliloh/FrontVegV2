@@ -28,6 +28,7 @@ dist/
 # Depth-Anything-V2/
 # sam3/
 data/
+datasets/
 outputs/
 output_release/
 grapes/

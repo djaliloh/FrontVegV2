@@ -16,7 +16,7 @@
 
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/frontvegv2)](https://napari-hub.org/plugins/frontvegv2.html) [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) 
 [![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat&logo=PyTorch&logoColor=white)](https://pytorch.org/)
-[![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 <!-- uncomment this when the repos become public -->
 <!-- [![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/djaliloh/FrontVegV2)](https://github.com/djaliloh/FrontVegV2) --> 
@@ -56,8 +56,8 @@ We recommend using Python 3.10 and cuda 12.1:
    Download the Large model checkpoint (`depth_anything_v2_vitl.pth`) from the official [Depth-Anything V2 repository](https://github.com/DepthAnything/Depth-Anything-V2).
 
 4. **Place your downloaded checkpoints inside the project folder:** 
-   - Place sam3.pt into: checkpoints/sam3_ckpts/
-   - Place depth checkpoints into: checkpoints/depthanything_ckpts/
+   - Place (`sam3.pt`) into: `checkpoints/sam3_ckpts/`
+   - Place (`depth_anything_v2_vitl.pth`) into: `checkpoints/depthanything_ckpts/`
 
 ---
 
@@ -199,16 +199,6 @@ This development installation is intended for contributors and users who need di
 
 
 
-
-<!-- ################################################# -->
-
-
-
-
-
-
-
-
 <!-- ### Option 2: Direct PyPI Install + Environment Variables  -->
 
 <!-- ```powershell
@@ -243,20 +233,6 @@ napari
 5. Click **Run Complete Pipeline**.
 
 
-<!-- ## Citing FrontVeg V2
-
-```bibtex
-@article{djaliloh2026frontvegv2,
-  title={FrontVeg-V2: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops Using Side View Monocular RGB Images},
-  author={A-D. Ousseini Hamza, et al.}, 
-  journal={SoftwareX}, 
-  year={2026},
-  url={https://github.com/djaliloh/FrontVeg2} 
-}
-```  -->
-
-<!-- ## License
-License is pending. -->
 
 ## Acknowledgements
 
@@ -264,7 +240,8 @@ This work was supported by the French **Programme et Équipements Prioritaires d
 
 This research used computing resources from the **GLiCID Computing Facility** (Ligerien Group for Intensive Distributed Computing, [doi:10.60487/glicid](https://doi.org/10.60487/glicid), Pays de la Loire, France), as well as HPC and storage resources provided by **GENCI at IDRIS** on the Jean Zay supercomputer’s H100 partition (Grant 2025-AD010115553R1).
 
-The authors would like to thank **Sirine Gharbi**, **Oumaima Karia**, **Justin Langlois**, **Paul**, and **Thomas** for their valuable assistance in annotating the image dataset used in this study.
+The authors would like to thank **Sirine Gharbi**, **Oumaima Karia**, **Justin Langlois**, **Paul Persello**, and **Thomas Lebouc** for their valuable assistance in annotating the image dataset used in this study.
+
 
 ## Contact
 
@@ -283,3 +260,44 @@ IRHS, UMR 1345, INRAE, <br>
 - Missing Module 'triton': On Windows, install the Windows-compatible Triton build: pip install triton-windows.
 - RuntimeError: mat1 and mat2 must have the same dtype: If running on GPUs older than NVIDIA Ampere (e.g., GTX 10xx, RTX 20xx), ensure autocast is set to float16 or float32 instead of bfloat16.
 - Missing Checkpoints Error: Verify that sam3.pt exists at the expected path or set FRONTVEG_SAM3_CKPT manually.
+
+
+## License
+
+FrontVeg V2 is released under the MIT License. See the LICENSE.txt file for details.
+
+Third-party software and models used by FrontVeg V2, including SAM3 and
+Depth Anything V2, are subject to their respective licenses and terms.
+
+
+## Contributing
+
+Contributions, bug reports, feature requests, and suggestions are welcome.
+
+To contribute:
+
+1. Fork the repository.
+2. Create a new branch for your changes.
+3. Make your changes and test them locally.
+4. Commit your changes with a clear and descriptive message.
+5. Open a pull request describing your changes and their purpose.
+
+For bugs or feature requests, please open an issue and provide enough information to reproduce the problem or evaluate the proposed feature.
+
+By contributing to this repository, you agree that your contributions will be distributed under the same license as the project.
+
+
+<!-- 
+## Citing FrontVeg V2
+
+```bibtex
+@inproceedings{
+hamza2026foregroundaware,
+title={Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops Using Side View Monocular {RGB} Images},
+author={Abdoul Djalil Ousseini Hamza and Herearii Metuarea and Corentin Lothod{\'e} and Morgane Roth and Eric Duch{\^e}ne and Lionel LEY and David All{\'e}tru and David Marc ROUSSEAU},
+booktitle={11th Workshop on Computer Vision in Plant Phenotyping and Agriculture},
+year={2026},
+url={https://openreview.net/forum?id=Z24CpPVqcU}  
+}
+```
+
