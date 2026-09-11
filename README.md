@@ -232,6 +232,8 @@ napari
 4. Set your prompt (e.g., "leaf") and adjust parameters (Tile Overlap, Sigma, etc.).
 5. Click **Run Complete Pipeline**.
 
+> **Watch the video tutorial here:** https://youtu.be/0sHq0k9mMcc?si=X31Uep_dp6J4RrJi
+<!-- or visit the website https://frontvegv2.github.io/FrontVegV2/.  -->
 
 
 ## Acknowledgements
@@ -264,7 +266,7 @@ IRHS, UMR 1345, INRAE, <br>
 
 ## License
 
-FrontVeg V2 is released under the MIT License. See the LICENSE.txt file for details.
+FrontVeg V2 is released under the `MIT License`. See the `LICENSE.txt` file for details.
 
 Third-party software and models used by FrontVeg V2, including SAM3 and
 Depth Anything V2, are subject to their respective licenses and terms.
@@ -294,7 +296,7 @@ By contributing to this repository, you agree that your contributions will be di
 @inproceedings{
 hamza2026foregroundaware,
 title={Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops Using Side View Monocular {RGB} Images},
-author={Abdoul Djalil Ousseini Hamza and Herearii Metuarea and Corentin Lothod{\'e} and Morgane Roth and Eric Duch{\^e}ne and Lionel LEY and David All{\'e}tru and David Marc ROUSSEAU},
+author={Abdoul Djalil Ousseini Hamza and Herearii Metuarea and Corentin Lothodé and Morgane Roth and Eric Duchêne and Lionel LEY and David Allétru and David Marc ROUSSEAU},
 booktitle={11th Workshop on Computer Vision in Plant Phenotyping and Agriculture},
 year={2026},
 url={https://openreview.net/forum?id=Z24CpPVqcU}  
