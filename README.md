@@ -232,7 +232,7 @@ napari
 4. Set your prompt (e.g., "leaf") and adjust parameters (Tile Overlap, Sigma, etc.).
 5. Click **Run Complete Pipeline**.
 
-> **Watch the video tutorial here:** https://youtu.be/0sHq0k9mMcc?si=X31Uep_dp6J4RrJi
+> **Watch the video tutorial here:** https://youtu.be/0sHq0k9mMcc
 <!-- or visit the website https://frontvegv2.github.io/FrontVegV2/.  -->
 
 
