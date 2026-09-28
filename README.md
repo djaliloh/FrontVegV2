@@ -290,6 +290,7 @@ By contributing to this repository, you agree that your contributions will be di
 
 
 ## Citing FrontVeg V2
+> **Note:** The SoftwareX paper citation will be available soon.
 
 ```bibtex
 @inproceedings{
