@@ -289,7 +289,6 @@ For bugs or feature requests, please open an issue and provide enough informatio
 By contributing to this repository, you agree that your contributions will be distributed under the same license as the project.
 
 
-<!-- 
 ## Citing FrontVeg V2
 
 ```bibtex
