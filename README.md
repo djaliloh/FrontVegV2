@@ -103,9 +103,8 @@ pip install frontvegV2
 
 ## Installation
 
-FrontVeg V2 requires a dedicated Conda environment and two external models: **Depth-Anything V2** and **SAM3**.
+FrontVeg V2 requires two external models: **Depth-Anything V2** and **SAM3**. We recommend using conda environment for the installation of these models and FrontVeg V2 package.
 
-> **Note:** The FrontVeg V2 GitHub repository is currently private. Therefore, users should install the FrontVeg V2 package from PyPI rather than cloning the main repository.
 
 <!-- ### 1. Create and activate a Conda environment
 
@@ -172,7 +171,7 @@ python -c "import frontveg; print('FrontVeg V2 installed successfully')"
 
 ### Alternative: Development Installation
 
-If you have access to the private FrontVeg V2 GitHub repository and want to modify the source code, you can clone the repository and install it in editable mode:
+If you want to launch a batch processing or modify the source code, you can clone the repository and install it in editable mode:
 
 ```bash
 git clone https://github.com/djaliloh/FrontVegV2.git
@@ -194,10 +193,6 @@ cd ../..
 # Install FrontVeg V2 in editable mode
 pip install -e .
 ```
-
-This development installation is intended for contributors and users who need direct access to the source code.
-
-
 
 <!-- ### Option 2: Direct PyPI Install + Environment Variables  -->
 
