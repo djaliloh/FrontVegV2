@@ -47,7 +47,7 @@ dependencies = [
 [project.optional-dependencies]
 raw = ["rawpy"]
 test = ["pytest>=7", "pytest-qt"]
-docs = ["mkdocs-material>=9"]
+docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9", "markdown-callouts"]
 dev = ["frontvegV2[test,docs]", "ruff", "pre-commit", "build", "twine"]
 
 [project.urls]

@@ -1,0 +1,54 @@
+cff-version: 1.2.0
+message: "If you use FrontVeg V2, please cite the paper below."
+title: "FrontVeg V2"
+type: software
+license: MIT
+repository-code: "https://github.com/djaliloh/FrontVegV2"
+version: 2.2.0
+authors:
+  - family-names: Ousseini Hamza
+    given-names: Abdoul Djalil
+    orcid: "https://orcid.org/0009-0008-6172-4439"
+  - family-names: Metuarea
+    given-names: Herearii
+    orcid: "https://orcid.org/0009-0008-2716-0617"
+  - family-names: Lothodé
+    given-names: Corentin
+    orcid: "https://orcid.org/0000-0002-8209-317X"
+  - family-names: Roth
+    given-names: Morgane
+    orcid: "https://orcid.org/0000-0002-5244-4215"
+  - family-names: Duchêne
+    given-names: Eric
+    orcid: "https://orcid.org/0000-0003-2712-1892"
+  - family-names: Ley
+    given-names: Lionel
+  - family-names: Alletru
+    given-names: David
+    orcid: "https://orcid.org/0009-0006-6238-6123"
+  - family-names: Rousseau
+    given-names: David
+    orcid: "https://orcid.org/0000-0002-7935-1609"
+preferred-citation:
+  type: conference-paper
+  title: "Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops Using Side View Monocular RGB Images"
+  collection-title: "11th Workshop on Computer Vision in Plant Phenotyping and Agriculture"
+  year: 2026
+  url: "https://openreview.net/forum?id=Z24CpPVqcU"
+  authors:
+    - family-names: Ousseini Hamza
+      given-names: Abdoul Djalil
+    - family-names: Metuarea
+      given-names: Herearii
+    - family-names: Lothodé
+      given-names: Corentin
+    - family-names: Roth
+      given-names: Morgane
+    - family-names: Duchêne
+      given-names: Eric
+    - family-names: Ley
+      given-names: Lionel
+    - family-names: Allétru
+      given-names: David
+    - family-names: Rousseau
+      given-names: David Marc

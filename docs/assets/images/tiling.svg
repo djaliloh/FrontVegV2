@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 300" width="1040" height="300" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5b6475"/>
+    </marker>
+    <style>
+      .title { font-size: 15px; font-weight: 600; fill: #1f2937; }
+      .text { font-size: 12.5px; fill: #4b5563; }
+      .badge { font-size: 13px; font-weight: 700; fill: #ffffff; }
+    </style>
+  </defs>
+  <rect width="1040" height="300" rx="14" fill="#ffffff"/>
+
+  <!-- Panel A: overlapping tiles -->
+  <circle cx="40" cy="32" r="12" fill="#2f6fe4"/><text x="40" y="37" text-anchor="middle" class="badge">a</text>
+  <text x="60" y="37" class="title">Overlapping tiles</text>
+  <rect x="30" y="60" width="290" height="190" fill="#f3f4f6" stroke="#9ca3af"/>
+  <rect x="30" y="60" width="170" height="190" fill="#2f6fe4" fill-opacity="0.10" stroke="#2f6fe4" stroke-width="2"/>
+  <rect x="115" y="60" width="170" height="190" fill="#ea7a1a" fill-opacity="0.10" stroke="#ea7a1a" stroke-width="2" stroke-dasharray="6 4"/>
+  <rect x="200" y="60" width="120" height="190" fill="#22a05b" fill-opacity="0.10" stroke="#22a05b" stroke-width="2"/>
+  <ellipse cx="200" cy="150" rx="58" ry="30" fill="#4ade80" stroke="#15803d" stroke-width="2"/>
+  <text x="175" y="272" text-anchor="middle" class="text">640 px tiles, stride = tile x (1 - overlap)</text>
+
+  <path d="M335,155 L380,155" stroke="#5b6475" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- Panel B: fragments -->
+  <circle cx="400" cy="32" r="12" fill="#2f6fe4"/><text x="400" y="37" text-anchor="middle" class="badge">b</text>
+  <text x="420" y="37" class="title">Fragments per tile</text>
+  <rect x="392" y="60" width="290" height="190" fill="#f3f4f6" stroke="#9ca3af"/>
+  <path d="M504,120 A58,30 0 0,0 504,180 L562,180 L562,120 Z" fill="#60a5fa" fill-opacity="0.75" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M620,120 A58,30 0 0,1 620,180 L562,180 L562,120 Z" fill="#f59e0b" fill-opacity="0.75" stroke="#b45309" stroke-width="2"/>
+  <rect x="520" y="112" width="84" height="76" fill="none" stroke="#ea7a1a" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="537" y="272" text-anchor="middle" class="text">one object cut into several fragments</text>
+
+  <path d="M697,155 L742,155" stroke="#5b6475" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- Panel C: merged -->
+  <circle cx="762" cy="32" r="12" fill="#2f6fe4"/><text x="762" y="37" text-anchor="middle" class="badge">c</text>
+  <text x="782" y="37" class="title">Graph merge</text>
+  <rect x="754" y="60" width="260" height="190" fill="#f3f4f6" stroke="#9ca3af"/>
+  <ellipse cx="884" cy="150" rx="58" ry="30" fill="#4ade80" stroke="#15803d" stroke-width="2"/>
+  <text x="884" y="155" text-anchor="middle" class="text" fill="#14532d">id 1</text>
+  <text x="884" y="272" text-anchor="middle" class="text">box IoU, then mask IoU, connected components</text>
+</svg>
