@@ -69,7 +69,7 @@ def main():
     for subdir in subdirs:
         print(f"\n--- Processing Subdirectory: {subdir.name} ---")
         
-        frontveg_pipe.process_folder(str(subdir), output_root / "temp_frontveg", plot_graphics=True)
+        fv_masks = frontveg_pipe.process_folder(str(subdir), output_root / "temp_frontveg", plot_graphics=True)
         
         # Get all supported image formats (PNG, JPG, TIF, TIFF, CR3, etc.)
         images = get_image_files(str(subdir), supported_only=True)
@@ -94,9 +94,9 @@ def main():
                             continue
                         
                         # Get FrontVeg Mask (Mask1)
-                        fv_mask_p = output_root / "temp_frontveg" / "masks" / subdir.name / img_p.name
-                        if not fv_mask_p.exists(): 
-                            print(f"    ! FrontVeg mask not found: {fv_mask_p.name}")
+                        fv_mask_p = fv_masks.get(img_p)
+                        if fv_mask_p is None:
+                            print(f"    ! FrontVeg mask not found: {img_p.name}")
                             continue
                         mask_fv = cv2.imread(str(fv_mask_p), cv2.IMREAD_GRAYSCALE)
                         
@@ -137,7 +137,7 @@ def main():
                         output_filename = convert_output_filename(img_p.name, target_format="png")
 
                         cv2.imwrite(str(paths["sam3_overlay"] / output_filename), cv2.cvtColor(colored_overlay, cv2.COLOR_RGB2BGR)) 
-                        cv2.imwrite(str(paths["colored_finalid_on_input_rgb"] / output_filename), colored_finalid_overlay_rgb)
+                        cv2.imwrite(str(paths["colored_finalid_on_input_rgb"] / output_filename), cv2.cvtColor(colored_finalid_overlay_rgb, cv2.COLOR_RGB2BGR))
                         # cv2.imwrite(str(paths["rgb_cutout"] / output_filename), cv2.cvtColor(final_rgb_cutout, cv2.COLOR_RGB2BGR))
                         cv2.imwrite(str(paths["masks"] / output_filename), final_mask)
                         # cv2.imwrite(str(paths["id_maps"] / output_filename), final_id_map.astype(np.uint8))

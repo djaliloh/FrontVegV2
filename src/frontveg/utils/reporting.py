@@ -1,56 +1,36 @@
-import pandas as pd
-import matplotlib.pyplot as plt
+"""Diagnostic plots of the depth histogram analysis."""
+
+from __future__ import annotations
+
 from pathlib import Path
+
 import numpy as np
+from matplotlib.figure import Figure
+
 
 class AnalysisReporter:
-    """
-    Handles logging analysis results to Excel and generating diagnostic plots.
-    """
-    @staticmethod
-    def log_to_excel(excel_path, data_list, image_name):
-        """Logs detected minima depths to an Excel file."""
-        df = pd.DataFrame(data_list)
-        df["image"] = image_name
-        
-        file_exists = Path(excel_path).exists()
-        with pd.ExcelWriter(excel_path, mode="a" if file_exists else "w", 
-                            engine="openpyxl", 
-                            if_sheet_exists="overlay" if file_exists else None) as writer:
-            df.to_excel(writer, index=False, header=not file_exists)
-
     @staticmethod
     def plot_histogram_analysis(hist, analysis_results, output_path, title="Histogram Analysis"):
-        """Generates and saves the histogram plot with peaks and threshold."""
+        """Save the histogram with its peaks, valleys and selected threshold."""
         if not analysis_results:
             return
 
-        plt.figure(figsize=(10, 6))
+        # Figure (not pyplot) is thread-safe and needs no GUI backend.
+        fig = Figure(figsize=(10, 6))
+        ax = fig.subplots()
         x = np.arange(len(hist))
-        y_smooth = analysis_results['smoothed_hist']
-        
-        plt.plot(x, hist, label="Raw Histogram", color="lightgray", alpha=0.5)
-        plt.plot(x, y_smooth, label="Smoothed", color="gray")
-        
-        # Mark peaks
-        peaks = analysis_results['peaks']
-        plt.plot(x[peaks], y_smooth[peaks], "ro", label="Modes (Peaks)")
-         
-        # Mark valleys
-        if 'valleys' in analysis_results:
-            valley_indices = [v['index'] for v in analysis_results['valleys']]
-            plt.plot(x[valley_indices], y_smooth[valley_indices], "go", label="Valleys (Minima)")
+        y_smooth = analysis_results["smoothed_hist"]
+        peaks = analysis_results["peaks"]
+        valleys = [v["index"] for v in analysis_results.get("valleys", [])]
+        threshold = analysis_results["optimal_threshold"]
 
-        # Mark threshold
-        opt_thresh = analysis_results['optimal_threshold']
-        plt.axvline(opt_thresh, color="blue", linestyle="--", 
-                    label=f"Optimal Threshold = {opt_thresh}")
-        
-        plt.legend()
-        plt.title(title)
-        plt.xlabel("Intensity")
-        plt.ylabel("Frequency")
-        
+        ax.plot(x, hist, label="Raw histogram", color="lightgray")
+        ax.plot(x, y_smooth, label="Smoothed", color="gray")
+        ax.plot(x[peaks], y_smooth[peaks], "ro", label="Modes (peaks)")
+        ax.plot(x[valleys], y_smooth[valleys], "go", label="Valleys (minima)")
+        ax.axvline(threshold, color="blue", linestyle="--", label=f"Threshold = {threshold}")
+        ax.set(title=title, xlabel="Normalized depth", ylabel="Pixel count")
+        ax.legend()
+
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(output_path)
-        plt.close()
+        fig.savefig(output_path, bbox_inches="tight")

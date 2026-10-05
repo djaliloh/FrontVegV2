@@ -1,411 +1,159 @@
+"""Image loading for standard (PNG, JPG, TIF, BMP) and RAW (CR3, CR2, NEF, ARW, DNG) files.
+
+Every loader returns RGB ``uint8`` arrays of shape (H, W, 3): this is the
+convention used throughout FrontVeg V2.
 """
-Image Loader Utility
-Handles multiple image formats including PNG, JPG, TIF, TIFF, and CR3.
-Converts all formats to RGB numpy arrays compatible with the pipeline.
-"""
+
+from __future__ import annotations
+
+import logging
+from pathlib import Path
 
 import cv2
 import numpy as np
-from pathlib import Path
 from PIL import Image
-from typing import Optional, Tuple
-import warnings
+
+logger = logging.getLogger(__name__)
+
+STANDARD_FORMATS = frozenset({".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"})
+RAW_FORMATS = frozenset({".cr3", ".cr2", ".nef", ".arw", ".dng"})
+
+
+class ImageLoadError(RuntimeError):
+    """Raised when an image file cannot be read."""
+
+
+def to_rgb_uint8(image: np.ndarray) -> np.ndarray:
+    """Convert a grayscale, RGB or RGBA array of any numeric type to RGB uint8.
+
+    Floats are expected in [0, 1] (or [0, 255] if their maximum exceeds 1);
+    16-bit and other integer types are rescaled from their full range.
+    """
+    image = np.asarray(image)
+    if image.ndim == 2:
+        image = np.repeat(image[..., None], 3, axis=-1)
+    if image.ndim != 3 or image.shape[-1] not in (3, 4):
+        raise ValueError(f"Expected an (H, W), (H, W, 3) or (H, W, 4) image, got {image.shape}")
+    image = image[..., :3]
+
+    if image.dtype == np.uint8:
+        return np.ascontiguousarray(image)
+    if image.dtype == np.bool_:
+        return image.astype(np.uint8) * 255
+    if np.issubdtype(image.dtype, np.floating):
+        scale = 255.0 if np.nanmax(image) <= 1.0 else 1.0
+        return np.clip(np.nan_to_num(image) * scale, 0, 255).astype(np.uint8)
+    if np.issubdtype(image.dtype, np.integer):
+        return (image.astype(np.float64) / np.iinfo(image.dtype).max * 255).astype(np.uint8)
+    raise ValueError(f"Unsupported image dtype: {image.dtype}")
 
 
 class ImageLoader:
     """Unified image loading interface for diverse formats."""
-    
-    # Supported formats
-    STANDARD_FORMATS = {'.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff'}
-    RAW_FORMATS = {'.cr3', '.cr2', '.nef', '.arw', '.dng'}
+
+    STANDARD_FORMATS = STANDARD_FORMATS
+    RAW_FORMATS = RAW_FORMATS
     ALL_FORMATS = STANDARD_FORMATS | RAW_FORMATS
-    
+
     @staticmethod
-    def get_supported_extensions():
-        """Return tuple of supported file extensions."""
-        return tuple(ImageLoader.ALL_FORMATS)
-    
+    def get_supported_extensions() -> tuple[str, ...]:
+        return tuple(sorted(ImageLoader.ALL_FORMATS))
+
     @staticmethod
-    def load_image_cv2(path: str) -> Optional[np.ndarray]:
-        """
-        Load image using OpenCV.
-        
-        Args:
-            path: Path to image file
-            
-        Returns:
-            BGR numpy array or None if failed
-        """
-        try:
-            img = cv2.imread(str(path))
-            return img
-        except Exception as e:
-            warnings.warn(f"CV2 failed to load {path}: {e}")
-            return None
-    
-    @staticmethod
-    def load_image_pil(path: str, target_format: str = "RGB") -> Optional[np.ndarray]:
-        """
-        Load image using PIL.
-        
-        Args:
-            path: Path to image file
-            target_format: Target color space ("RGB" or "RGBA")
-            
-        Returns:
-            RGB/RGBA numpy array or None if failed
-        """
-        try:
-            img = Image.open(path)
-            if target_format == "RGB":
-                img = img.convert("RGB")
-            elif target_format == "RGBA":
-                img = img.convert("RGBA")
-            return np.array(img)
-        except Exception as e:
-            warnings.warn(f"PIL failed to load {path}: {e}")
-            return None
-    
-    @staticmethod
-    def load_cr3(path: str) -> Optional[np.ndarray]:
-        """
-        Load CR3 (Canon RAW) image and convert to RGB.
-        
-        Args:
-            path: Path to CR3 file
-            
-        Returns:
-            RGB numpy array (uint8) or None if failed
-        """
+    def load_raw_image(path: str | Path) -> np.ndarray:
+        """Develop a RAW file with the camera white balance. Requires ``rawpy``."""
         try:
             import rawpy
-            
-            with rawpy.imread(str(path)) as raw:
-                # Try different rawpy API versions
-                # Newer versions don't have bayer_dither_fs parameter
-                try:
-                    # Try new API first (works with recent rawpy)
-                    rgb = raw.postprocess(
-                        use_camera_wb=True,
-                        output_bps=8,
-                    )
-                except TypeError:
-                    # Fall back to old API with bayer_dither_fs
-                    try:
-                        rgb = raw.postprocess(
-                            bayer_dither_fs=None,
-                            half_size=False,
-                            output_bps=8,
-                        )
-                    except TypeError:
-                        # Fallback to minimal postprocess
-                        rgb = raw.postprocess(output_bps=8)
-            return rgb
-        except ImportError:
-            error_msg = (
-                f"\n{'='*80}\n"
-                f"⚠️  RAWPY NOT INSTALLED - Cannot load CR3 files!\n"
-                f"{'='*80}\n"
-                f"File: {path}\n"
-                f"\nFIX THIS ISSUE:\n"
-                f"\n1. Create a virtual environment (recommended):\n"
-                f"   On Linux/macOS:  bash setup_env.sh\n"
-                f"   On Windows:      setup_env.bat\n"
-                f"\n2. Or install rawpy directly:\n"
-                f"   pip install --break-system-packages rawpy\n"
-                f"\n3. Then verify:\n"
-                f"   python -c \"import rawpy; print('✅ rawpy installed')\"\n"
-                f"\nDoc: See ENVIRONMENT_SETUP_GUIDE.md for full instructions\n"
-                f"{'='*80}\n"
-            )
-            warnings.warn(error_msg)
-            return None
-        except Exception as e:
-            error_msg = (
-                f"\n{'='*80}\n"
-                f"❌ ERROR loading CR3 file: {path}\n"
-                f"{'='*80}\n"
-                f"Error: {e}\n"
-                f"\nPossible causes:\n"
-                f"  1. File is corrupt or not a valid CR3 image\n"
-                f"  2. rawpy is not properly installed\n"
-                f"  3. Insufficient disk space or permissions\n"
-                f"\nDebugging steps:\n"
-                f"  python -c \"import rawpy; print('rawpy OK')\"\n"
-                f"  file {path}  # Check file type\n"
-                f"{'='*80}\n"
-            )
-            warnings.warn(error_msg)
-            return None
-    
-    @staticmethod
-    def load_raw_image(path: str) -> Optional[np.ndarray]:
-        """
-        Load RAW formats (CR3, CR2, NEF, ARW, DNG).
-        
-        Args:
-            path: Path to RAW file
-            
-        Returns:
-            RGB numpy array or None if failed
-        """
-        ext = Path(path).suffix.lower()
-        
-        if ext == '.cr3':
-            return ImageLoader.load_cr3(path)
-        else:
-            # For other RAW formats, try rawpy
-            try:
-                import rawpy
-                with rawpy.imread(str(path)) as raw:
-                    # Try different rawpy API versions
-                    try:
-                        # Try new API first (works with recent rawpy)
-                        rgb = raw.postprocess(use_camera_wb=True, output_bps=8)
-                    except TypeError:
-                        # Fall back to old API with bayer_dither_fs
-                        try:
-                            rgb = raw.postprocess(bayer_dither_fs=None, half_size=False, output_bps=8)
-                        except TypeError:
-                            # Fallback to minimal postprocess
-                            rgb = raw.postprocess(output_bps=8)
-                return rgb
-            except ImportError:
-                error_msg = (
-                    f"\n{'='*70}\n"
-                    f"⚠️  RAWPY NOT INSTALLED - Cannot load {ext.upper()} files!\n"
-                    f"{'='*70}\n"
-                    f"File: {path}\n"
-                    f"\nTo process RAW files, install rawpy:\n"
-                    f"  pip install rawpy\n"
-                    f"\nOn Linux, you may also need system dependencies:\n"
-                    f"  sudo apt-get install libcaca-dev\n"
-                    f"{'='*70}\n"
-                )
-                warnings.warn(error_msg)
-                return None
-            except Exception as e:
-                error_msg = (
-                    f"\n{'='*70}\n"
-                    f"❌ ERROR loading {ext.upper()} file: {path}\n"
-                    f"{'='*70}\n"
-                    f"Error: {e}\n"
-                    f"\nMake sure:\n"
-                    f"  1. rawpy is installed: pip install rawpy\n"
-                    f"  2. File is a valid {ext.upper()} image\n"
-                    f"  3. File is not corrupted\n"
-                    f"{'='*70}\n"
-                )
-                warnings.warn(error_msg)
-                return None
-    
-    @staticmethod
-    def load_image(path: str, return_format: str = "rgb") -> Optional[np.ndarray]:
-        """
-        Universal image loader. Automatically detects format and loads appropriately.
-        
-        Args:
-            path: Path to image file
-            return_format: "rgb" for RGB (default), "bgr" for BGR, "rgba" for RGBA
-            
-        Returns:
-            numpy array in requested format or None if failed
-            
-        Raises:
-            ValueError: If return_format is invalid
-        """
-        if return_format not in ["rgb", "bgr", "rgba"]:
-            raise ValueError(f"return_format must be 'rgb', 'bgr', or 'rgba', got {return_format}")
-        
-        path = Path(path)
-        ext = path.suffix.lower()
-        
-        if not path.exists():
-            warnings.warn(f"File does not exist: {path}")
-            return None
-        
-        img = None
-        
-        # Try loading RAW formats first
-        if ext in ImageLoader.RAW_FORMATS:
-            img = ImageLoader.load_raw_image(str(path))
-        
-        # Fall back to PIL for standard formats
-        if img is None and ext in ImageLoader.STANDARD_FORMATS:
-            if return_format == "bgr":
-                img = ImageLoader.load_image_cv2(str(path))
-            else:
-                img = ImageLoader.load_image_pil(str(path), target_format="RGB")
-        
-        # Final fallback: try both methods
-        if img is None:
-            img = ImageLoader.load_image_pil(str(path), target_format="RGB")
-        if img is None:
-            img = ImageLoader.load_image_cv2(str(path))
-        
-        # Convert to requested format
-        if img is not None and len(img.shape) == 3:
-            if return_format == "rgb":
-                # Ensure RGB
-                if img.shape[2] == 4:  # RGBA to RGB
-                    img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
-                elif img.shape[2] == 3:
-                    # Check if it's BGR (from cv2) or RGB
-                    # We'll rely on PIL being called for RGB formats
-                    pass
-            elif return_format == "bgr":
-                # Ensure BGR
-                if img.shape[2] == 4:  # RGBA to BGR
-                    img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGR)
-                elif img.shape[2] == 3:
-                    # Assume we need BGR for cv2
-                    pass
-        
-        return img
-    
-    @staticmethod
-    def load_pil_image(path: str) -> Optional[Image.Image]:
-        """
-        Load image as PIL Image object.
-        
-        Args:
-            path: Path to image file
-            
-        Returns:
-            PIL Image or None if failed
-        """
+        except ImportError as e:
+            raise ImageLoadError(
+                f"Reading {Path(path).suffix.upper()} files requires rawpy: "
+                "pip install 'frontvegV2[raw]'"
+            ) from e
         try:
-            return Image.open(path)
+            with rawpy.imread(str(path)) as raw:
+                return raw.postprocess(use_camera_wb=True, output_bps=8)
         except Exception as e:
-            warnings.warn(f"Failed to load image as PIL: {path}: {e}")
-            return None
+            raise ImageLoadError(f"Cannot decode RAW file {path}: {e}") from e
+
+    @staticmethod
+    def load_standard_image(path: str | Path) -> np.ndarray:
+        """Read a standard image with PIL, falling back to OpenCV (e.g. exotic TIFF)."""
+        try:
+            with Image.open(path) as img:
+                if img.mode.startswith("I"):  # 16-bit grayscale, stored by PIL as int32
+                    array = np.clip(np.array(img), 0, 65535).astype(np.uint16)
+                elif img.mode == "F":
+                    array = np.array(img)
+                else:
+                    array = np.array(img.convert("RGB"))
+            return to_rgb_uint8(array)
+        except Exception as pil_error:
+            bgr = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
+            if bgr is None:
+                raise ImageLoadError(f"Cannot read image {path}: {pil_error}") from pil_error
+            if bgr.ndim == 3:
+                code = cv2.COLOR_BGRA2RGBA if bgr.shape[2] == 4 else cv2.COLOR_BGR2RGB
+                bgr = cv2.cvtColor(bgr, code)
+            return to_rgb_uint8(bgr)
+
+    @staticmethod
+    def load_image(path: str | Path, return_format: str = "rgb") -> np.ndarray:
+        """Load any supported image as an (H, W, 3) uint8 array.
+
+        Args:
+            path: Image file.
+            return_format: ``"rgb"`` (default) or ``"bgr"`` (for OpenCV).
+
+        Raises:
+            ImageLoadError: The file is missing or cannot be decoded.
+        """
+        if return_format not in ("rgb", "bgr"):
+            raise ValueError(f"return_format must be 'rgb' or 'bgr', got {return_format!r}")
+        path = Path(path)
+        if not path.is_file():
+            raise ImageLoadError(f"File does not exist: {path}")
+
+        if path.suffix.lower() in RAW_FORMATS:
+            rgb = to_rgb_uint8(ImageLoader.load_raw_image(path))
+        else:
+            rgb = ImageLoader.load_standard_image(path)
+        return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR) if return_format == "bgr" else rgb
+
+    @staticmethod
+    def load_pil_image(path: str | Path) -> Image.Image:
+        """Load any supported image (RAW included) as an RGB PIL image."""
+        return Image.fromarray(ImageLoader.load_image(path))
 
 
 def convert_output_filename(filename: str, target_format: str = "png") -> str:
+    """Output file name for an input image: same stem, lossless ``target_format``.
+
+    Masks and depth maps must never be written with a lossy format such as JPEG.
     """
-    Convert filename to a writable format.
-    
-    RAW formats (CR3, CR2, NEF, etc.) can't be written by OpenCV,
-    so convert them to standard formats for output.
-    
-    Args:
-        filename: Original filename (e.g., 'photo.CR3', 'photo.jpg')
-        target_format: Target format ('png', 'jpg', 'tif')
-        
-    Returns:
-        Converted filename (e.g., 'photo.png')
-    """
-    path = Path(filename)
-    ext = path.suffix.lower()
-    
-    # RAW formats that need conversion
-    raw_formats = {'.cr3', '.cr2', '.nef', '.arw', '.dng'}
-    
-    # If it's a RAW format or if target format differs, convert
-    if ext in raw_formats:
-        return str(path.with_suffix(f".{target_format}"))
-    
-    # If extension is not a standard writable format, convert it
-    writable_formats = {'.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff'}
-    if ext not in writable_formats:
-        return str(path.with_suffix(f".{target_format}"))
-    
-    # Otherwise keep original
-    return filename
+    return Path(filename).with_suffix(f".{target_format}").name
 
 
-def get_image_files(directory: str, supported_only: bool = True) -> list:
-    """
-    Get all supported image files from a directory.
-    
-    Args:
-        directory: Path to directory
-        supported_only: If True, only return supported formats
-        
-    Returns:
-        List of Path objects
-    """
+def get_image_files(directory: str | Path, supported_only: bool = True) -> list[Path]:
+    """Sorted image files of ``directory`` (extension matching is case-insensitive)."""
     dir_path = Path(directory)
-    
     if not dir_path.is_dir():
         return []
-    
+    files = (p for p in dir_path.iterdir() if p.is_file())
     if supported_only:
-        extensions = ImageLoader.get_supported_extensions()
-        files = []
-        seen = set()
-        for ext in extensions:
-            for f in list(dir_path.glob(f"*{ext}")) + list(dir_path.glob(f"*{ext.upper()}")):
-                # Déduplique via le chemin résolu (crucial sur Windows : case-insensitive)
-                key = f.resolve()
-                if key not in seen:
-                    seen.add(key)
-                    files.append(f)
-        return sorted(files)
-    else:
-        return sorted(dir_path.glob("*"))
+        files = (p for p in files if p.suffix.lower() in ImageLoader.ALL_FORMATS)
+    return sorted(files)
 
 
 def check_format_support() -> dict:
-    """
-    Check which image formats are supported with current dependencies.
-    
-    Returns:
-        Dictionary with format status information
-    """
-    status = {
-        "standard_formats": {
-            "JPG/JPEG": True,
-            "PNG": True,
-            "TIF/TIFF": True,
-            "BMP": True,
-        },
-        "raw_formats": {}
-    }
-    
+    """Report which formats can be read with the installed dependencies."""
     try:
-        import rawpy
-        status["raw_formats"]["CR3"] = True
-        status["raw_formats"]["CR2"] = True
-        status["raw_formats"]["NEF"] = True
-        status["raw_formats"]["ARW"] = True
-        status["raw_formats"]["DNG"] = True
-        status["rawpy_installed"] = True
+        import rawpy  # noqa: F401
+
+        rawpy_installed = True
     except ImportError:
-        status["raw_formats"]["CR3"] = False
-        status["raw_formats"]["CR2"] = False
-        status["raw_formats"]["NEF"] = False
-        status["raw_formats"]["ARW"] = False
-        status["raw_formats"]["DNG"] = False
-        status["rawpy_installed"] = False
-    
-    return status
-
-
-def print_format_support():
-    """Print a nice table of supported image formats."""
-    status = check_format_support()
-    
-    print("\n" + "="*70)
-    print("📸 IMAGE FORMAT SUPPORT STATUS")
-    print("="*70)
-    
-    print("\n✅ STANDARD FORMATS (Always Available):")
-    for fmt, supported in status["standard_formats"].items():
-        symbol = "✅" if supported else "❌"
-        print(f"   {symbol} {fmt}")
-    
-    print("\n🔧 RAW FORMATS (Requires rawpy):")
-    for fmt, supported in status["raw_formats"].items():
-        symbol = "✅" if supported else "❌"
-        print(f"   {symbol} {fmt}")
-    
-    if not status["rawpy_installed"]:
-        print("\n⚠️  TO ENABLE RAW FORMAT SUPPORT:")
-        print("   pip install rawpy")
-        print("\n   On Linux, also run:")
-        print("   sudo apt-get install libcaca-dev")
-    else:
-        print("\n✨ All formats are supported!")
-    
-    print("="*70 + "\n")
+        rawpy_installed = False
+    return {
+        "standard_formats": {ext.lstrip(".").upper(): True for ext in sorted(STANDARD_FORMATS)},
+        "raw_formats": {ext.lstrip(".").upper(): rawpy_installed for ext in sorted(RAW_FORMATS)},
+        "rawpy_installed": rawpy_installed,
+    }

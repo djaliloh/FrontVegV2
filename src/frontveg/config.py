@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, fields
+from typing import Any
 
 
 @dataclass
@@ -36,3 +38,9 @@ class FrontVegConfig:
             raise ValueError(f"peak_dist must be >= 1, got {self.peak_dist}")
         if self.tile_size <= 0:
             raise ValueError(f"tile_size must be positive, got {self.tile_size}")
+
+    @classmethod
+    def from_mapping(cls, values: Mapping[str, Any]) -> FrontVegConfig:
+        """Build a config from a mapping (e.g. ``vars(args)``); unknown or None values are ignored."""
+        names = {f.name for f in fields(cls)}
+        return cls(**{k: v for k, v in values.items() if k in names and v is not None})

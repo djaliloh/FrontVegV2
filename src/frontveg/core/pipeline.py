@@ -1,127 +1,157 @@
-import os
-import cv2 as cv
-import numpy as np
+"""FrontVeg foreground extraction: depth estimation, then histogram-valley thresholding."""
+
+from __future__ import annotations
+
+import logging
+from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
-from frontveg.models.depth_wrapper import DepthAnythingWrapper
+
+import cv2
+import numpy as np
+
+from frontveg.config import FrontVegConfig
 from frontveg.core.hist_processor import HistogramProcessor
-from frontveg.core.valley_processor import ValleyProcessor
 from frontveg.core.segmenter import BinarySegmenter
+from frontveg.core.valley_processor import ValleyProcessor
+from frontveg.utils.image_loader import (
+    ImageLoader,
+    ImageLoadError,
+    convert_output_filename,
+    get_image_files,
+)
 from frontveg.utils.reporting import AnalysisReporter
-from frontveg.utils.image_loader import ImageLoader, convert_output_filename
+
+logger = logging.getLogger(__name__)
+
+# Used when no valley is found: middle of the normalized [0, 255] depth range.
+FALLBACK_THRESHOLD = 127
+
+
+@dataclass
+class DepthAnalysis:
+    """Intermediate results of the foreground extraction of one image."""
+
+    depth: np.ndarray  # Normalized depth, uint8 (H, W)
+    histogram: np.ndarray
+    analysis: dict | None  # ValleyProcessor output, None if no valley was found
+    threshold: float
+    mask: np.ndarray  # Foreground mask, uint8 0/255 (H, W)
+
+    @property
+    def used_fallback(self) -> bool:
+        return self.analysis is None
+
 
 class FrontVegPipeline:
-    def __init__(self, config):
+    """Depth-based foreground mask of the front crop row.
+
+    Args:
+        config: ``FrontVegConfig``, or a mapping with its fields plus the optional
+            ``depth_repo_path`` and ``depth_ckpt_path`` keys.
+        depth_repo_path: Depth-Anything-V2 repository.
+        depth_ckpt_path: Folder holding ``depth_anything_v2_<encoder>.pth``.
+    """
+
+    def __init__(self, config, depth_repo_path=None, depth_ckpt_path=None):
+        if isinstance(config, Mapping):
+            depth_repo_path = depth_repo_path or config.get("depth_repo_path")
+            depth_ckpt_path = depth_ckpt_path or config.get("depth_ckpt_path")
+            config = FrontVegConfig.from_mapping(config)
         self.config = config
-        # Initialize sub-modules
+
+        # Imported here so that the thresholding code can be used without torch.
+        from frontveg.models.depth_wrapper import DepthAnythingWrapper
+
         self.depth_model = DepthAnythingWrapper(
-            encoder=config.get('encoder', 'vitl'),
-            checkpoint_path=config.get('depth_ckpt_path'),
-            repo_path=config.get('depth_repo_path') #, 'Depth-Anything-V2'
+            encoder=config.encoder, checkpoint_path=depth_ckpt_path, repo_path=depth_repo_path
         )
         self.hist_engine = HistogramProcessor()
         self.valley_engine = ValleyProcessor(
-            sigma=config['sigma'],
-            peak_dist=config['peak_dist'],
-            peak_height=config['peak_height'],
-            smooth=config['smoothed']
+            sigma=config.sigma,
+            peak_dist=config.peak_dist,
+            peak_height=config.peak_height,
+            smooth=config.smoothed,
+            prominence=config.peak_prominence,
+            max_valleys=config.max_valleys,
         )
-        self.reporter = AnalysisReporter() 
+        self.reporter = AnalysisReporter()
 
-    def process_folder(self, input_dir, output_root, plot_graphics=False):
-        """
-        Processes a full folder of images, following your batch normalization logic.
-        Supports PNG, JPG, TIF, TIFF, CR3 and other formats via ImageLoader.
+    def infer_depth(self, image_rgb: np.ndarray) -> np.ndarray:
+        return self.depth_model.infer(image_rgb, input_size=self.config.depth_input_size)
+
+    def threshold_depth(self, depth, reference_max, sigma=None, peak_dist=None) -> DepthAnalysis:
+        """Foreground mask of a depth map normalized by ``reference_max``."""
+        clean_depth, hist = self.hist_engine.normalize_and_hist(depth, reference_max)
+        analysis = self.valley_engine.find_optimal_threshold(hist, sigma=sigma, peak_dist=peak_dist)
+        threshold = analysis["optimal_threshold"] if analysis else FALLBACK_THRESHOLD
+        mask = BinarySegmenter.apply_threshold(clean_depth, threshold)
+        return DepthAnalysis(clean_depth, hist, analysis, threshold, mask)
+
+    def analyze(self, image_rgb: np.ndarray, sigma=None, peak_dist=None) -> DepthAnalysis:
+        """Depth estimation and thresholding of a single RGB image."""
+        depth = self.infer_depth(image_rgb)
+        result = self.threshold_depth(depth, depth.max(), sigma=sigma, peak_dist=peak_dist)
+        if result.used_fallback:
+            logger.warning("No histogram valley found, using threshold %d", FALLBACK_THRESHOLD)
+        return result
+
+    def predict(self, image_rgb: np.ndarray, sigma=None, peak_dist=None) -> np.ndarray:
+        """Foreground mask (uint8 0/255) of a single RGB image."""
+        return self.analyze(image_rgb, sigma=sigma, peak_dist=peak_dist).mask
+
+    def process_folder(self, input_dir, output_root, plot_graphics: bool = False) -> dict:
+        """Write the depth map and foreground mask of every image of ``input_dir``.
+
+        Depth maps are normalized with the maximum of the whole folder so that
+        thresholds are comparable between images of the same acquisition.
+
+        Returns:
+            dict mapping each processed image path to its foreground mask path.
         """
         input_path = Path(input_dir)
-        
-        # Get all supported image formats (PNG, JPG, TIF, TIFF, CR3, etc.)
-        from frontveg.utils.image_loader import get_image_files
-        images = get_image_files(str(input_path), supported_only=True)
-        
-        # 1. Generate raw depth maps and find global max for this folder
-        raw_depths = []
-        valid_images = []
-        global_max = 0
-        
-        print(f"--> Step 1: Depth Estimation for {input_path.name}")
-        for img_p in images:
+        output_root = Path(output_root)
+        depth_dir = output_root / "depth" / input_path.name
+        mask_dir = output_root / "masks" / input_path.name
+        plot_dir = output_root / "graphics" / input_path.name
+
+        # 1. Depth estimation.
+        logger.info("Depth estimation for %s", input_path.name)
+        depths = {}
+        for img_p in get_image_files(input_path):
             try:
-                # Load image using ImageLoader (handles all formats)
-                img = ImageLoader.load_image(str(img_p), return_format="bgr")
-                
-                if img is None:
-                    print(f"    [SKIP] Failed to load {img_p.name}")
-                    continue
-                
-                # print("[DEBUG] PIPELINE: calling depth inference")
-                depth = self.depth_model.infer(img)
-                raw_depths.append(depth)
-                valid_images.append(img_p)
-                global_max = max(global_max, depth.max())
-
-                # Save raw depth for reference
-                depth_dir = Path(output_root) / "depth" / input_path.name
-                depth_dir.mkdir(parents=True, exist_ok=True)
-                output_filename = convert_output_filename(img_p.name, target_format="png")
-                cv.imwrite(str(depth_dir / output_filename), depth)
-                
-            except Exception as e:
-                print(f"    [ERROR] Failed to process {img_p.name}: {str(e)}")
+                image = ImageLoader.load_image(img_p)
+            except ImageLoadError as e:
+                logger.warning("Skipping %s: %s", img_p.name, e)
                 continue
+            depths[img_p] = self.infer_depth(image)
+            _write_png(depth_dir / convert_output_filename(img_p.name), depths[img_p])
 
-        # 2. Process each image for thresholding
-        print(f"--> Step 2: Thresholding and Mask Generation")
-        for idx, (depth, img_p) in enumerate(zip(raw_depths, valid_images)):
-            # Normalize & Hist
-            clean_depth, hist = self.hist_engine.normalize_and_hist(depth, global_max)
-            
-            # Find Valley
-            analysis = self.valley_engine.find_optimal_threshold(hist)
-            
-            if analysis:
-                threshold = analysis['optimal_threshold']
-                mask = BinarySegmenter.apply_threshold(clean_depth, threshold)
-                
-                # Save Mask
-                out_dir = Path(output_root) / "masks" / input_path.name
-                out_dir.mkdir(parents=True, exist_ok=True)
-                output_filename = convert_output_filename(img_p.name, target_format="png")
-                cv.imwrite(str(out_dir / output_filename), mask)
-                
-                # Optional Plotting
-                if plot_graphics:
-                    plot_path = Path(output_root) / "graphics" / input_path.name / f"hist_{img_p.stem}.png"
-                    self.reporter.plot_histogram_analysis(hist, analysis, plot_path, title=f"Analysis: {img_p.name}")
-            else:
-                print(f"Warning: No threshold found for {img_p.name}")
-    
+        # 2. Thresholding with a folder-wide normalization.
+        logger.info("Thresholding and mask generation for %s", input_path.name)
+        global_max = self.hist_engine.compute_global_max(depths.values())
+        masks = {}
+        for img_p, depth in depths.items():
+            result = self.threshold_depth(depth, global_max)
+            if result.used_fallback:
+                logger.warning(
+                    "%s: no histogram valley found, using threshold %d",
+                    img_p.name,
+                    FALLBACK_THRESHOLD,
+                )
+            masks[img_p] = _write_png(mask_dir / convert_output_filename(img_p.name), result.mask)
+            if plot_graphics and result.analysis:
+                self.reporter.plot_histogram_analysis(
+                    result.histogram,
+                    result.analysis,
+                    plot_dir / f"hist_{img_p.stem}.png",
+                    title=f"Analysis: {img_p.name}",
+                )
+        return masks
 
 
-    def predict(self, image_np, sigma=None):
-        """
-        Inference for a single image (Napari).
-        """
-        s = sigma if sigma is not None else self.config.get('sigma', 1.1)
-        
-        # 2. Depth Inference
-        depth = self.depth_model.infer(image_np)
-        
-        # For a single image, the local max is our reference
-        current_max = depth.max() 
-        
-        # 3. Histogram and Normalization
-        clean_depth, hist = self.hist_engine.normalize_and_hist(depth, current_max)  
-        
-        # 4. Valley Search (Automatic Thresholding)
-        analysis = self.valley_engine.find_optimal_threshold(hist)
-        
-        if analysis and 'optimal_threshold' in analysis:
-            threshold = analysis['optimal_threshold']
-            # On applique le sigma pour ajuster la sensibilité
-            # (Ta logique peut varier ici selon tes recherches)
-            mask = (clean_depth > threshold).astype(np.uint8) * 255
-        else:
-            # Fallback si l'analyse d'histogramme échoue
-            mask = (clean_depth > (current_max * 0.5)).astype(np.uint8) * 255
-            
-        return mask
+def _write_png(path: Path, image: np.ndarray) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not cv2.imwrite(str(path), image):
+        raise OSError(f"Cannot write {path}")
+    return path

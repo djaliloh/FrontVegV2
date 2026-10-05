@@ -1,96 +1,78 @@
+"""Automatic foreground threshold from the valleys of a depth histogram."""
+
+from __future__ import annotations
+
+import logging
+
 import numpy as np
-from scipy.signal import find_peaks
 from scipy.ndimage import gaussian_filter
+from scipy.signal import find_peaks
+
+logger = logging.getLogger(__name__)
+
 
 class ValleyProcessor:
+    """Find the depth threshold separating the foreground row from the background.
+
+    Peaks of the (optionally smoothed) histogram are the depth modes. Valleys are
+    searched between consecutive peaks, from the second peak onwards, and the
+    lowest one gives the threshold.
     """
-    Handles the detection of optimal thresholds in depth histograms 
-    using peak and valley analysis.
-    """
-    def __init__(self, sigma=1.1, peak_dist=20, peak_height=0.5, smooth=False):
+
+    def __init__(
+        self,
+        sigma: float = 1.1,
+        peak_dist: float = 8.0,
+        peak_height: float = 0.5,
+        smooth: bool = True,
+        prominence: float = 0.5,
+        max_valleys: int = 4,
+    ):
         self.sigma = sigma
         self.peak_dist = peak_dist
         self.peak_height = peak_height
         self.smooth = smooth
+        self.prominence = prominence
+        self.max_valleys = max_valleys
 
-    def find_optimal_threshold(self, histogram):
-        """
-        Analyzes the histogram to find the deepest valley between peaks.
-        
+    def find_optimal_threshold(self, histogram, sigma=None, peak_dist=None) -> dict | None:
+        """Analyze ``histogram``; ``sigma`` and ``peak_dist`` override the instance values.
+
         Returns:
-            dict: A dictionary containing the optimal threshold, all peaks, and all valleys.
+            dict with ``optimal_threshold``, ``peaks``, ``valleys`` and ``smoothed_hist``,
+            or None when fewer than three peaks are found.
         """
-        y = histogram.copy()
-        x = np.arange(len(y))
+        sigma = self.sigma if sigma is None else sigma
+        peak_dist = self.peak_dist if peak_dist is None else peak_dist
 
-        # Optional smoothing using Gaussian filter
+        y = np.array(histogram, copy=True)
         if self.smooth:
-            print("  > [Applying Gaussian] smoothing to histogram...")
-            y_smoothed = gaussian_filter(y, sigma=self.sigma)
-        else:
-            print("  > [Skipping Gaussian] smoothing, using raw histogram...")
-            y_smoothed = y
+            y = gaussian_filter(y, sigma=sigma)
 
-        # Detect peaks (modes) in the histogram 
         peaks, _ = find_peaks(
-            y_smoothed, 
-            height=self.peak_height, 
-            prominence=0.5, 
-            distance=self.peak_dist
+            y, height=self.peak_height, prominence=self.prominence, distance=peak_dist
         )
-
         if len(peaks) < 3:
+            logger.debug("Only %d histogram peak(s) found, no threshold", len(peaks))
             return None
-
-        # Detect minima between peaks (starting from the 2nd mode)
-        # valleys = []
-        # for i in range(1, len(peaks) - 1):
-        #     start, end = peaks[i], peaks[i + 1]
-        #     min_index = np.argmin(y_smoothed[start:end]) + start
-            
-        #     # Calculate depth relative to neighboring peaks
-        #     left_peak = peaks[i]
-        #     right_peak = peaks[i + 1]
-        #     depth_val = y_smoothed[min_index] - np.mean([y_smoothed[left_peak], y_smoothed[right_peak]])
-            
-        #     valleys.append({
-        #         'index': int(min_index),
-        #         'depth': float(depth_val),
-        #         'y_value': float(y_smoothed[min_index])
-        #     })
 
         valleys = []
-
-        for i in range(1, len(peaks) - 1):
-
-            start, end = peaks[i], peaks[i + 1]
-            min_index = np.argmin(y_smoothed[start:end]) + start
-
-            left_peak = peaks[i + 1]
-            right_peak = peaks[i + 2] if i + 2 < len(peaks) else len(y_smoothed) - 1
-
-            depth_val = y_smoothed[min_index] - np.mean(
-                [y_smoothed[left_peak], y_smoothed[right_peak]]
+        for left, right in zip(peaks[1:-1], peaks[2:]):
+            index = int(np.argmin(y[left:right]) + left)
+            valleys.append(
+                {
+                    "index": index,
+                    # Valley depth relative to the mean height of its two peaks.
+                    "depth": float(y[index] - (y[left] + y[right]) / 2),
+                    "y_value": float(y[index]),
+                }
             )
+        valleys = valleys[: self.max_valleys]
 
-            valleys.append({
-                "index": int(min_index),
-                "depth": float(depth_val),
-                "y_value": float(y_smoothed[min_index])
-            })
-
-        valleys = valleys[:4]
-
-        if not valleys:
-            return None
-
-        # Selection of the optimal threshold (the deepest/lowest valley)
-        # Based on your logic: minimum y value among detected valleys
-        optimal_valley = min(valleys, key=lambda v: v['y_value'])
-        
+        optimal = min(valleys, key=lambda v: v["y_value"])
         return {
-            'optimal_threshold': optimal_valley['index'],
-            'peaks': peaks,
-            'valleys': valleys,
-            'smoothed_hist': y_smoothed
+            "optimal_threshold": optimal["index"],
+            "peaks": peaks,
+            "valleys": valleys,
+            "smoothed_hist": y,
         }
