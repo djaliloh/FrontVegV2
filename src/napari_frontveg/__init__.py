@@ -57,8 +57,16 @@ def save_statistics(path: Path, areas: dict[int, int], prompt, sigma, peak_dist,
     with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(
-            ["ID_Instance", "Count", "Total_Area_Pixels", "Surface_Pixels",
-             "Prompt", "Sigma", "Peak_Dist", "Tile_Overlap"]
+            [
+                "ID_Instance",
+                "Count",
+                "Total_Area_Pixels",
+                "Surface_Pixels",
+                "Prompt",
+                "Sigma",
+                "Peak_Dist",
+                "Tile_Overlap",
+            ]
         )
         for inst_id, area in areas.items():
             writer.writerow([inst_id, len(areas), total, area, prompt, sigma, peak_dist, overlap])

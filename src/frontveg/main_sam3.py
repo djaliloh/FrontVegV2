@@ -24,7 +24,10 @@ def main(argv: list[str] | None = None) -> int:
 
     paths = paths_from_args(args)
     predictor = SAM3Predictor(
-        paths.sam3_ckpt, repo_path=paths.sam3_repo, device=args.device, conf_threshold=args.conf_threshold
+        paths.sam3_ckpt,
+        repo_path=paths.sam3_repo,
+        device=args.device,
+        conf_threshold=args.conf_threshold,
     )
     tiler = SAM3TiledInference(predictor, tile_size=args.tile_size, overlap=args.overlap)
 

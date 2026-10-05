@@ -133,7 +133,9 @@ class MasterPipeline:
                     failed.append(img_p.name)
                     continue
                 try:
-                    rows.append(self._process_image(img_p, fg_masks[img_p], output_dir, subdir.name, prompt))
+                    rows.append(
+                        self._process_image(img_p, fg_masks[img_p], output_dir, subdir.name, prompt)
+                    )
                     processed += 1
                 except ImageLoadError as e:
                     logger.warning("Skipping %s: %s", img_p.name, e)

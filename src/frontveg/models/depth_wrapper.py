@@ -31,7 +31,9 @@ class DepthAnythingWrapper:
         repo_path: str | Path = "external/Depth-Anything-V2",
     ):
         if encoder not in ENCODER_CONFIGS:
-            raise ValueError(f"Unknown encoder {encoder!r}, expected one of {list(ENCODER_CONFIGS)}")
+            raise ValueError(
+                f"Unknown encoder {encoder!r}, expected one of {list(ENCODER_CONFIGS)}"
+            )
         if repo_path is None or not Path(repo_path).is_dir():
             raise FileNotFoundError(
                 f"Depth-Anything-V2 repository not found at '{repo_path}'. "
@@ -49,7 +51,9 @@ class DepthAnythingWrapper:
 
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.model = DepthAnythingV2(**ENCODER_CONFIGS[encoder])
-        self.model.load_state_dict(torch.load(self.ckpt_path, map_location="cpu", weights_only=True))
+        self.model.load_state_dict(
+            torch.load(self.ckpt_path, map_location="cpu", weights_only=True)
+        )
         self.model.to(self.device).eval()
         logger.info("Depth-Anything-V2 (%s) loaded on %s", encoder, self.device)
 

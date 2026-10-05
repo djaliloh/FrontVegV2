@@ -28,7 +28,9 @@ class SAM3Predictor:
         self.device = torch.device(device)
 
         # Half precision on Volta and newer GPUs; full precision elsewhere.
-        use_fp16 = self.device.type == "cuda" and torch.cuda.get_device_capability(self.device)[0] >= 7
+        use_fp16 = (
+            self.device.type == "cuda" and torch.cuda.get_device_capability(self.device)[0] >= 7
+        )
         self.dtype = torch.float16 if use_fp16 else torch.float32
 
         logger.info("Loading SAM3 on %s (%s)", self.device, self.dtype)
