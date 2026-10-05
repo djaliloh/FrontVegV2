@@ -1,72 +1,51 @@
-"""
-Single-pass SAM3 inference (NO tiling, NO graph-merging).
+"""Single-pass SAM3 inference, without tiling or graph merging.
 
-Used by ablation baselines A and C where the full image is passed
-directly to SAM3 without any tiling strategy. The result is a raw
-instance ID map produced by a single forward pass over the entire image.
+Ablation baselines A and C: the full image goes through SAM3 in one forward pass.
 """
 
 from __future__ import annotations
 
 import numpy as np
-import torch
-from PIL import Image
+
+from frontveg.core.tiling import is_hallucination, release_cache
 
 
 class SAM3FullImageInference:
-    """
-    Runs SAM3 on the full image in a single forward pass.
+    """Run SAM3 on the full image in a single forward pass.
 
     Parameters
     ----------
     predictor : SAM3Predictor
-        Loaded SAM3Predictor wrapper (frontveg.models.sam3_wrapper).
+        Loaded predictor.
     max_area_ratio : float
-        Segments covering more than this fraction of the image are
-        treated as hallucinations and discarded.
+        Segments covering more than this fraction of the image are dropped.
+    min_area : int
+        Segments smaller than this (px) are dropped.
     """
 
-    def __init__(self, predictor, max_area_ratio: float = 0.55):
+    def __init__(self, predictor, max_area_ratio: float = 0.55, min_area: int = 50):
         self.predictor = predictor
         self.max_area_ratio = max_area_ratio
+        self.min_area = min_area
 
-    def _is_hallucination(self, mask: np.ndarray, W: int, H: int) -> bool:
-        area = mask.sum()
-        if area < 50:
-            return True
-        if area / (W * H) > self.max_area_ratio:
-            return True
-        return False
-
-    def process(self, pil_image: Image.Image, prompt: str):
-        """
-        Run a single SAM3 forward pass on the full image.
-
-        Returns
-        -------
-        id_map : np.ndarray (H, W) uint16  –  0 = background
-        n_instances : int
-        """
-        W, H = pil_image.size
+    def process(self, pil_image, prompt: str):
+        """Return ``(id_map, n_instances)``, or ``(None, 0)`` if nothing was detected."""
+        width, height = pil_image.size
         masks, scores = self.predictor.predict_crop(pil_image, prompt)
-
+        release_cache(self.predictor)
         if masks is None:
             return None, 0
 
-        # Build a winner-takes-all id_map (highest score wins per pixel)
-        final_id_map = np.zeros((H, W), dtype=np.uint16)
-        max_score_map = np.zeros((H, W), dtype=np.float32)
-
+        # Winner-takes-all: each pixel keeps its highest-score mask.
+        id_map = np.zeros((height, width), dtype=np.uint16)
+        best_score = np.zeros((height, width), dtype=np.float32)
         inst_id = 0
-        for i, m_raw in enumerate(masks):
-            m_bool = m_raw[0] > 0
-            if self._is_hallucination(m_bool, W, H):
+        for raw, score in zip(masks, scores):
+            mask = raw[0] > 0
+            if is_hallucination(mask, width * height, self.min_area, self.max_area_ratio):
                 continue
             inst_id += 1
-            score = float(scores[i])
-            update = m_bool & (score > max_score_map)
-            max_score_map[update] = score
-            final_id_map[update] = inst_id
-
-        torch.cuda.empty_cache()
-        return final_id_map, inst_id
+            update = mask & (float(score) > best_score)
+            best_score[update] = score
+            id_map[update] = inst_id
+        return id_map, inst_id
