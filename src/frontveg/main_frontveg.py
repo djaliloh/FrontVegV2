@@ -1,61 +1,41 @@
+"""FrontVeg foreground masks only (no SAM3): ``frontveg-depth --input <images>``."""
+
+from __future__ import annotations
+
 import argparse
+import logging
+import sys
 
-from pathlib import Path
-from frontveg.core.pipeline import FrontVegPipeline
+from frontveg.cli import add_depth_args, add_io_args, configure_logging, paths_from_args
+from frontveg.config import FrontVegConfig
 
-def main():
-    parser = argparse.ArgumentParser(description="FrontVeg Segmentation Pipeline")
-    parser.add_argument("--input", type=str, required=True, help="Path to raw images")
-    parser.add_argument("--output", type=str, default="output_frontveg", help="Output directory")
-    parser.add_argument("--encoder", type=str, default="vitl", choices=["vits", "vitb", "vitl", "vitg"])
-    parser.add_argument("--plot", action="store_true", help="Enable histogram plotting")
-    parser.add_argument("--depth_repo_path", type=str, default="external/Depth-Anything-V2", help="Path to Depth Anything repository")
 
-    parser.add_argument("--sigma", type=float, default=1.1, help="Sigma for Gaussian smoothing in valley detection")
-    parser.add_argument("--peak_dist", type=float, default=2, help="Minimum distance between peaks in histogram")
-    parser.add_argument("--peak_height", type=float, default=0.5, help="Minimum height of peaks in histogram")
-    parser.add_argument("--smoothed", action="store_true", help="Enable smoothing in valley detection")
-    args = parser.parse_args()
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="FrontVeg depth-based foreground segmentation.")
+    add_io_args(parser, default_output="output_frontveg")
+    add_depth_args(parser)
+    parser.add_argument("--plot", action="store_true", help="Save histogram plots")
+    args = parser.parse_args(argv)
+    configure_logging(args.verbose)
 
-    # sigma=1.1, peak_dist=2, peak_height=0.5
-  
-    config = {
-        'input': args.input,
-        'output': args.output,
-        'encoder': args.encoder,
-        'depth_repo_path': args.depth_repo_path,
-        'sigma': args.sigma,
-        'peak_dist': args.peak_dist,
-        'peak_height': args.peak_height,
-        'smoothed': args.smoothed
-    }
+    from frontveg.core.pipeline import FrontVegPipeline
 
-    # Initialize and run
-    pipeline = FrontVegPipeline(config)
-    
-    # import os
-        # for subdir in os.listdir(args.input):
-        #     full_subdir = os.path.join(args.input, subdir)
-        #     if os.path.isdir(full_subdir):
-        #         pipeline.process_folder(full_subdir, args.output, plot_graphics=args.plot)
+    paths = paths_from_args(args)
+    missing = paths.missing(args.encoder, sam3=False)
+    if missing:
+        logging.getLogger("frontveg").error("Missing resources:\n- %s", "\n- ".join(missing))
+        return 2
+    pipeline = FrontVegPipeline(
+        FrontVegConfig.from_mapping(vars(args)),
+        depth_repo_path=paths.depth_repo,
+        depth_ckpt_path=paths.depth_ckpt_dir,
+    )
+    subdirs = sorted(p for p in args.input.iterdir() if p.is_dir()) or [args.input]
+    for folder in subdirs:
+        masks = pipeline.process_folder(folder, args.output, plot_graphics=args.plot)
+        logging.getLogger("frontveg").info("%s: %d mask(s) written", folder.name, len(masks))
+    return 0
 
-    input_path = Path(args.input)
-    subdirs = [p for p in input_path.iterdir() if p.is_dir()]
-
-    if subdirs:
-        for d in subdirs:
-            pipeline.process_folder(str(d), args.output, plot_graphics=args.plot)
-    else:
-        pipeline.process_folder(str(input_path), args.output, plot_graphics=args.plot)
 
 if __name__ == "__main__":
-    main()
-
-
-
-# # PYTHONPATH=src python -m frontveg.main_frontveg \
-# --input data/raw/arbo_test/test \
-# --output outputs/experiments \
-# --encoder vitl \
-# --plot \
-# --peak_dist 1
+    sys.exit(main())

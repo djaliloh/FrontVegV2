@@ -8,6 +8,7 @@ Resolution order for each resource:
 
 from __future__ import annotations
 
+import importlib.util
 import logging
 import os
 import sys
@@ -77,15 +78,20 @@ class ResourcePaths:
     def depth_ckpt(self, encoder: str) -> Path:
         return self.depth_ckpt_dir / f"depth_anything_v2_{encoder}.pth"
 
-    def missing(self, encoder: str) -> list[str]:
+    def missing(self, encoder: str, sam3: bool = True) -> list[str]:
         """Human-readable list of the resources that cannot be found."""
-        checks = {
-            "Depth-Anything-V2 repository": self.depth_repo,
-            "Depth-Anything-V2 checkpoint": self.depth_ckpt(encoder),
-            "SAM3 repository": self.sam3_repo,
-            "SAM3 checkpoint": self.sam3_ckpt,
-        }
-        return [f"{name}: {path}" for name, path in checks.items() if not path.exists()]
+        problems = []
+        if not (self.depth_repo / "depth_anything_v2").is_dir():
+            problems.append(f"Depth-Anything-V2 repository: {self.depth_repo}")
+        if not self.depth_ckpt(encoder).is_file():
+            problems.append(f"Depth-Anything-V2 checkpoint: {self.depth_ckpt(encoder)}")
+        if sam3:
+            # SAM3 may be pip-installed anywhere; the clone is only needed otherwise.
+            if not (self.sam3_repo / "sam3").is_dir() and importlib.util.find_spec("sam3") is None:
+                problems.append(f"SAM3 repository: {self.sam3_repo}")
+            if not self.sam3_ckpt.is_file():
+                problems.append(f"SAM3 checkpoint: {self.sam3_ckpt}")
+        return problems
 
 
 def resolve_paths(root: Path | None = None) -> ResourcePaths:
