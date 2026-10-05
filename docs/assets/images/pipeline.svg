@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 400" width="1040" height="400" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5b6475"/>
+    </marker>
+    <style>
+      .title { font-size: 15px; font-weight: 600; fill: #1f2937; }
+      .text { font-size: 12.5px; fill: #4b5563; }
+      .badge { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      .lane { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; }
+      .edge { stroke: #5b6475; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1040" height="400" rx="14" fill="#ffffff"/>
+
+  <!-- Lanes -->
+  <rect x="200" y="22" width="590" height="160" rx="12" fill="#ecfdf3" stroke="#a6e3bf"/>
+  <text x="216" y="44" class="lane" fill="#15803d">FRONTVEG: WHERE IS THE FRONT ROW?</text>
+  <rect x="200" y="214" width="590" height="160" rx="12" fill="#eef4ff" stroke="#b3c9f5"/>
+  <text x="216" y="236" class="lane" fill="#1d4ed8">SAM3: WHICH OBJECTS MATCH THE PROMPT?</text>
+
+  <!-- Input -->
+  <rect x="24" y="148" width="150" height="104" rx="10" fill="#f9fafb" stroke="#d1d5db"/>
+  <text x="99" y="182" text-anchor="middle" class="title">RGB image</text>
+  <text x="99" y="204" text-anchor="middle" class="text">side view of</text>
+  <text x="99" y="221" text-anchor="middle" class="text">a trellised row</text>
+  <text x="99" y="240" text-anchor="middle" class="text">+ text prompt</text>
+
+  <!-- Step 1 -->
+  <rect x="222" y="62" width="160" height="100" rx="10" fill="#ffffff" stroke="#22a05b" stroke-width="1.5"/>
+  <circle cx="242" cy="82" r="12" fill="#22a05b"/><text x="242" y="87" text-anchor="middle" class="badge">1</text>
+  <text x="312" y="88" text-anchor="middle" class="title">Depth</text>
+  <text x="302" y="114" text-anchor="middle" class="text">Depth-Anything-V2</text>
+  <text x="302" y="132" text-anchor="middle" class="text">relative depth map</text>
+
+  <!-- Step 2 -->
+  <rect x="412" y="62" width="160" height="100" rx="10" fill="#ffffff" stroke="#22a05b" stroke-width="1.5"/>
+  <circle cx="432" cy="82" r="12" fill="#22a05b"/><text x="432" y="87" text-anchor="middle" class="badge">2</text>
+  <text x="502" y="88" text-anchor="middle" class="title">Valley search</text>
+  <text x="492" y="114" text-anchor="middle" class="text">depth histogram</text>
+  <text x="492" y="132" text-anchor="middle" class="text">automatic threshold</text>
+
+  <!-- Step 2 output -->
+  <rect x="602" y="62" width="168" height="100" rx="10" fill="#dcfce7" stroke="#22a05b" stroke-width="1.5"/>
+  <text x="686" y="100" text-anchor="middle" class="title">Foreground mask</text>
+  <text x="686" y="124" text-anchor="middle" class="text">front row only,</text>
+  <text x="686" y="142" text-anchor="middle" class="text">background rows removed</text>
+
+  <!-- Step 3 -->
+  <rect x="222" y="254" width="350" height="100" rx="10" fill="#ffffff" stroke="#2f6fe4" stroke-width="1.5"/>
+  <circle cx="242" cy="274" r="12" fill="#2f6fe4"/><text x="242" y="279" text-anchor="middle" class="badge">3</text>
+  <text x="397" y="280" text-anchor="middle" class="title">Tiled SAM3 segmentation</text>
+  <text x="397" y="306" text-anchor="middle" class="text">overlapping 640 px tiles, text prompt ("leaf", "grape"...)</text>
+  <text x="397" y="324" text-anchor="middle" class="text">fragments cut by tile borders merged with a</text>
+  <text x="397" y="342" text-anchor="middle" class="text">box/mask IoU graph, winner-takes-all stitching</text>
+
+  <!-- Step 3 output -->
+  <rect x="602" y="254" width="168" height="100" rx="10" fill="#dbeafe" stroke="#2f6fe4" stroke-width="1.5"/>
+  <text x="686" y="292" text-anchor="middle" class="title">Instance map</text>
+  <text x="686" y="316" text-anchor="middle" class="text">one id per object,</text>
+  <text x="686" y="334" text-anchor="middle" class="text">all rows included</text>
+
+  <!-- Step 4 -->
+  <rect x="820" y="148" width="196" height="104" rx="10" fill="#fff7ed" stroke="#ea7a1a" stroke-width="1.5"/>
+  <circle cx="840" cy="168" r="12" fill="#ea7a1a"/><text x="840" y="173" text-anchor="middle" class="badge">4</text>
+  <text x="926" y="174" text-anchor="middle" class="title">Fusion</text>
+  <text x="918" y="200" text-anchor="middle" class="text">instances kept inside</text>
+  <text x="918" y="218" text-anchor="middle" class="text">the foreground mask</text>
+  <text x="918" y="238" text-anchor="middle" class="text">labels, masks, statistics</text>
+
+  <!-- Edges -->
+  <path class="edge" d="M174,184 C196,184 196,112 220,112"/>
+  <path class="edge" d="M174,216 C196,216 196,304 220,304"/>
+  <path class="edge" d="M382,112 L410,112"/>
+  <path class="edge" d="M572,112 L600,112"/>
+  <path class="edge" d="M572,304 L600,304"/>
+  <path class="edge" d="M770,112 C796,112 796,184 818,184"/>
+  <path class="edge" d="M770,304 C796,304 796,216 818,216"/>
+</svg>

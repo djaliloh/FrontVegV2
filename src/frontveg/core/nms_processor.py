@@ -1,65 +1,38 @@
+"""Area-based cleanup of an instance map, applied after tiling + NMS.
+
+Used by ablation baselines B and D to remove tiny or giant segments that
+survived NMS (edge artefacts, background bleeds). Not used by baselines A and C,
+nor by the graph-based merging of :mod:`frontveg.core.sam3_tiler`.
 """
-nms_processor.py
-================
-Post-hoc area-based cleanup applied AFTER the tiling+NMS step.
 
-Role in the ablation
---------------------
-In baselines B and D the primary duplicate-suppression is already done
-by the greedy box-IoU NMS inside SAM3StandardTiledInference.
-This module then removes any residual tiny or giant segments that
-survived NMS (e.g. edge artefacts or background bleeds).
-
-In baseline A and C (no tiling) this module is NOT used.
-
-This is NOT the graph-based merging from sam3_tiler.py.
-"""
+from __future__ import annotations
 
 import numpy as np
 
 
 class NMSProcessor:
-    """
-    Post-hoc area filter on a SAM3 instance ID map.
+    """Remove instances that are too small or cover too much of the image.
 
     Parameters
     ----------
     min_area : int
-        Instances with fewer pixels than this are removed.
+        Instances smaller than this (px) are removed.
     max_area_ratio : float
-        Instances occupying more than this fraction of the full image
-        are removed (likely background / hallucinations).
+        Instances covering more than this fraction of the image are removed.
     """
 
     def __init__(self, min_area: int = 200, max_area_ratio: float = 0.55):
-        self.min_area        = min_area
-        self.max_area_ratio  = max_area_ratio
+        self.min_area = min_area
+        self.max_area_ratio = max_area_ratio
 
-    def suppress(self, id_map: np.ndarray) -> np.ndarray:
-        """
-        Remove small / giant instances from *id_map*.
-
-        Parameters
-        ----------
-        id_map : np.ndarray  (H, W) uint16  –  0 = background
-
-        Returns
-        -------
-        np.ndarray  (H, W) uint16  – cleaned id_map
-        """
+    def suppress(self, id_map: np.ndarray | None) -> np.ndarray | None:
+        """Return a cleaned uint16 copy of ``id_map`` (0 = background)."""
         if id_map is None:
-            return id_map
+            return None
 
-        H, W       = id_map.shape
-        total_px   = H * W
-        cleaned    = id_map.copy()
-
-        for inst_id in np.unique(id_map):
-            if inst_id == 0:
-                continue
-            area  = int(np.sum(id_map == inst_id))
-            ratio = area / total_px
-            if area < self.min_area or ratio > self.max_area_ratio:
-                cleaned[cleaned == inst_id] = 0
-
+        areas = np.bincount(id_map.ravel())
+        ratios = areas / id_map.size
+        drop = (areas < self.min_area) | (ratios > self.max_area_ratio)
+        drop[0] = False  # Background is not an instance
+        cleaned = np.where(drop[id_map], 0, id_map)
         return cleaned.astype(np.uint16)

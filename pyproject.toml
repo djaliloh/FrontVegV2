@@ -1,3 +1,93 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "frontvegV2"
+dynamic = ["version"]
+description = "Automated plant organ segmentation and leaf area estimation in trellised crops using side view monocular RGB images."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+authors = [{ name = "Abdoul Djalil Ousseini Hamza", email = "abdouldjalilo@gmail.com" }]
+requires-python = ">=3.10"
+keywords = ["napari", "plant phenotyping", "segmentation", "SAM3", "depth estimation"]
+classifiers = [
+    "Framework :: napari",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+dependencies = [
+    "napari[all]",
+    "magicgui",
+    "numpy>=1.26,<2",
+    "opencv-python-headless>=4.8",
+    "pillow",
+    "scipy",
+    "scikit-image",
+    "matplotlib",
+    "torch>=2.1",
+    "torchvision",
+    # Imported at runtime by SAM3 but not declared by it.
+    "einops",
+    "decord",
+    "psutil",
+    "pycocotools",
+    "pandas",
+    "scikit-learn",
+    "triton-windows; sys_platform == 'win32'",
+    "triton; sys_platform == 'linux'",
+    "setuptools>=69,<70",  # SAM3 imports pkg_resources
+]
+
+[project.optional-dependencies]
+raw = ["rawpy"]
+test = ["pytest>=7", "pytest-qt"]
+docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9", "markdown-callouts"]
+dev = ["frontvegV2[test,docs]", "ruff", "pre-commit", "build", "twine"]
+
+[project.urls]
+Homepage = "https://github.com/djaliloh/FrontVegV2"
+Documentation = "https://github.com/djaliloh/FrontVegV2/tree/main/docs"
+Issues = "https://github.com/djaliloh/FrontVegV2/issues"
+Paper = "https://openreview.net/forum?id=Z24CpPVqcU"
+
+[project.scripts]
+frontveg = "frontveg.cli:main"
+frontveg-depth = "frontveg.main_frontveg:main"
+frontveg-sam3 = "frontveg.main_sam3:main"
+
+[project.entry-points."napari.manifest"]
+frontvegV2 = "napari_frontveg:napari.yaml"
+
+[tool.setuptools.dynamic]
+version = { attr = "frontveg.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+napari_frontveg = ["napari.yaml"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["external"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = [
+    "E501",  # Long lines are handled by the formatter
+    "B905",  # zip() strictness is not needed for same-length sequences
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["frontveg", "napari_frontveg"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

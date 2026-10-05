@@ -1,0 +1,43 @@
+site_name: FrontVeg V2
+site_description: Foreground-aware zero-shot plant trait segmentation in trellised crops
+repo_url: https://github.com/djaliloh/FrontVegV2
+repo_name: djaliloh/FrontVegV2
+edit_uri: edit/main/docs/
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - napari plugin: napari-guide.md
+  - Batch processing: batch-processing.md
+  - How it works: how-it-works.md
+  - Parameters: parameters.md
+  - Troubleshooting: troubleshooting.md
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: green
+      accent: orange
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - scheme: slate
+      primary: green
+      accent: orange
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+  features:
+    - navigation.instant
+    - navigation.footer
+    - content.code.copy
+    - search.highlight
+
+markdown_extensions:
+  - tables
+  - toc:
+      permalink: true
+  - github-callouts
+  - pymdownx.highlight
+  - pymdownx.superfences
