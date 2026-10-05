@@ -81,12 +81,26 @@ def save_masks(folder: Path, base: str, result) -> list[Path]:
     return [binary, write_image(folder / f"{base}_mask_colored.png", colored)]
 
 
-def _upsert_layer(viewer, data, name: str, **kwargs) -> None:
-    """Replace the data of an existing labels layer, or add a new one."""
+def _upsert_layer(viewer, data, name: str, kind: str = "labels", **kwargs) -> None:
+    """Replace the data of an existing layer, or add a new ``kind`` layer."""
     if name in viewer.layers:
         viewer.layers[name].data = data
     else:
-        viewer.add_labels(data, name=name, **kwargs)
+        getattr(viewer, f"add_{kind}")(data, name=name, **kwargs)
+
+
+def show_foreground_layer(viewer, foreground: np.ndarray) -> None:
+    """Tint the FrontVeg foreground in green and dim the removed background."""
+    _upsert_layer(
+        viewer,
+        foreground,
+        "FrontVeg foreground",
+        kind="image",
+        colormap="green",
+        blending="translucent",
+        opacity=0.4,
+        contrast_limits=(0, 255),
+    )
 
 
 def make_frontveg_widget():
@@ -143,7 +157,7 @@ def make_frontveg_widget():
             if result.depth is not None and result.depth.used_fallback:
                 show_warning("No depth valley found: FrontVeg used the default threshold.")
             if show_foreground:
-                _upsert_layer(viewer, result.foreground // 255, "FrontVeg foreground", opacity=0.4)
+                show_foreground_layer(viewer, result.foreground)
             areas = result.instance_areas
             if not areas:
                 show_info(f"No '{prompt}' detected in the foreground.")
