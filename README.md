@@ -1,4 +1,4 @@
-# FrontVeg V2 : Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops <img src="assets/logo_frontveg.png" style="max-width: 3%; height: auto;"> 
+# FrontVeg V2 : Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops <img src="assets/frontveg_logo.png" style="max-width: 3%; height: auto;"> 
 
 <!-- ## Authors -->
 **Abdoul Djalil Ousseini Hamza** ([ORCID](https://orcid.org/0009-0008-6172-4439)), **Herearii Metuarea** ([ORCID](https://orcid.org/0009-0008-2716-0617)), **Corentin Lothodé** ([ORCID](https://orcid.org/0000-0002-8209-317X)), **Morgane Roth** ([ORCID](https://orcid.org/0000-0002-5244-4215)), **Eric Duchêne** ([ORCID](https://orcid.org/0000-0003-2712-1892)), **Lionel Ley**, **David Alletru** ([ORCID](https://orcid.org/0009-0006-6238-6123)), and **David Rousseau**<sup>*</sup> ([ORCID](https://orcid.org/0000-0002-7935-1609))
@@ -63,7 +63,7 @@ mkdir external
 cd external
 ```
 
-#### 3. Clone and install external models in the `external/` folder:
+#### 3. Clone and install the third-party models in the `external/` folder:
 ```bash
 # Clone Depth-Anything V2 (no need to install)
 git clone https://github.com/DepthAnything/Depth-Anything-V2.git
@@ -119,7 +119,6 @@ cd ../..
 #### 3. Install FrontVeg V2 from PyPI
 
 ```bash
-cd ..
 pip install frontvegV2
 # This installs the FrontVeg V2 package and its Python dependencies.
 ```
