@@ -1,38 +1,24 @@
-# FrontVeg V2: Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops
+# FrontVeg V2 : Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops <img src="assets/logo_frontveg.png" style="max-width: 3%; height: auto;"> 
 
 <!-- ## Authors -->
 **Abdoul Djalil Ousseini Hamza** ([ORCID](https://orcid.org/0009-0008-6172-4439)), **Herearii Metuarea** ([ORCID](https://orcid.org/0009-0008-2716-0617)), **Corentin Lothodé** ([ORCID](https://orcid.org/0000-0002-8209-317X)), **Morgane Roth** ([ORCID](https://orcid.org/0000-0002-5244-4215)), **Eric Duchêne** ([ORCID](https://orcid.org/0000-0003-2712-1892)), **Lionel Ley**, **David Alletru** ([ORCID](https://orcid.org/0009-0006-6238-6123)), and **David Rousseau**<sup>*</sup> ([ORCID](https://orcid.org/0000-0002-7935-1609))
 
 *\* Project Supervisor* 
 
-<!-- <img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
-
-<!-- ![Logo](https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo.png)  -->
-
-<!-- <img src="assets/logo.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
-
-<!-- <img src="https://i.imgur.com/NcQWGjS.png" alt="Project Logo" style="max-width: 100%; height: auto;"> -->
-<img src="https://raw.githubusercontent.com/djaliloh/Deep-learning-training/main/results/logo_parteneaire.png" alt="Partner Logo" style="max-width: 100%; height: auto;">
+<img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/logo_parteneaire.png" alt="Partner Logo" style="max-width: 100%; height: auto;">
 
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/frontvegv2)](https://napari-hub.org/plugins/frontvegv2.html) [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) 
 [![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=flat&logo=PyTorch&logoColor=white)](https://pytorch.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-<!-- uncomment this when the repos become public -->
-<!-- [![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/djaliloh/FrontVegV2)](https://github.com/djaliloh/FrontVegV2) --> 
+[![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/djaliloh/FrontVegV2)](https://github.com/djaliloh/FrontVegV2) 
 
 
-
-# FrontVeg V2
-
-A napari plugin for automated plant organ segmentation and leaf area estimation in trellised crops using side view monocular RGB images.
-
-<!-- > ⚠️ **Important:** SAM3 requires gated model weights from Hugging Face. Please follow the setup instructions below before running the plugin. -->  
+A napari plugin and a batch processing pipeline for automated plant organ segmentation and leaf area estimation in trellised crops using side view monocular RGB images.
 
 Some examples of organ segmentation on different trellised crops: 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/djaliloh/Deep-learning-training/main/results/frontvegv2_expl_grid.png" alt="FrontVeg V2 Segmentation Examples Grid" style="max-width: 100%; height: auto;">
+  <img src="https://raw.githubusercontent.com/djaliloh/FrontVegV2/main/assets/frontvegv2_examples_grid.png" alt="FrontVeg V2 Segmentation Examples Grid" style="max-width: 100%; height: auto;">
 </p>
 
 ---
@@ -61,174 +47,144 @@ We recommend using Python 3.10 and cuda 12.1:
 
 ---
 
-<!-- ## Installation
-
-### Option 1: Recommended (Git Clone + Editable Install)
-
-This option automatically sets up the relative paths for `external/` submodules and `checkpoints/`.
-
-```bash
-# 1. Clone the repository 
-git clone https://github.com/djaliloh/FrontVegV2.git
-cd FrontVegV2
-
-# 2. Clone and install external models in the external/ folder:
-cd external
-
-# Depth-Anything V2
-git clone https://github.com/DepthAnything/Depth-Anything-V2.git
-
-# SAM3
-git clone https://github.com/facebookresearch/sam3.git
-cd sam3
-pip install -e .
-cd ../..
-
-# 3. Install in editable mode 
-pip install -e .
-```
-
-> ℹ️ **Note:** This is the development repository. A standalone installation via `git clone` will be released soon. 
-> In the meantime, please follow **Option 2** to use the plugin.  
-
-
-### Option 2: Direct PyPI Install
-
-```bash 
-
-pip install frontvegV2
-```  -->
-<!-- ################################################### -->
-
-
 ## Installation
 
-FrontVeg V2 requires two external models: **Depth-Anything V2** and **SAM3**. We recommend using conda environment for the installation of these models and FrontVeg V2 package.
+### Option 1: Batch processing (Git Clone + Editable Install)
 
+#### 1. Clone the FrontVeg V2 repository 
+```bash 
+git clone https://github.com/djaliloh/FrontVegV2.git
+cd FrontVegV2
+```
 
-<!-- ### 1. Create and activate a Conda environment
-
-We recommend using Python 3.10:
-
-```bash
-conda create -n frontvegv2 python=3.10
-conda activate frontvegv2
-``` -->
-
-### 1. Clone and install the external models
-
-Create a directory for the external dependencies:
-
+#### 2. Create the external directory
 ```bash
 mkdir external
 cd external
 ```
 
-#### Depth-Anything V2
-
+#### 3. Clone and install external models in the `external/` folder:
 ```bash
+# Clone Depth-Anything V2 (no need to install)
 git clone https://github.com/DepthAnything/Depth-Anything-V2.git
-```
 
-Depth-Anything V2 does not need to be installed as a package at this stage; FrontVeg V2 uses it from the `external/` directory.
-
-#### SAM3
-
-```bash
+# Clone and install SAM3
 git clone https://github.com/facebookresearch/sam3.git
 cd sam3
 pip install -e .
+cd ../..
+```
+
+#### 4. Install FrontVeg V2 in editable mode 
+```bash
+pip install -e .
+```
+
+#### 5. Run the pipeline for batch processing 
+```bash
+python main_final.py --input <path_to_raw_rgb_images> --output <path_to_final_output_directory> --sam3_ckpt <path_to_sam3.pt> --prompt <sam3_text_prompt>  --peak_dist <integer>  --sigma <float> --smoothed
+```
+
+
+### Option 2: A standalone napari plugin (PyPI Install) 
+
+#### 1. Create directories for FrontVeg V2 and the external dependencies
+
+```bash
+# create directory for FrontVegV2 if you don't have one
+mkdir FrontVegV2
+cd FrontVegV2
+
+# create directory for external dependencies
+mkdir external
+cd external
+```
+
+#### 2. Clone and install external models in the `external/` folder
+
+```bash
+# Clone Depth-Anything V2 (no need to install)
+git clone https://github.com/DepthAnything/Depth-Anything-V2.git
+```
+
+
+```bash
+#  Clone and install SAM3
+git clone https://github.com/facebookresearch/sam3.git
+cd sam3
+pip install -e .
+cd ../..
+```
+
+#### 3. Install FrontVeg V2 from PyPI
+
+```bash
 cd ..
-```
-
-You should now have:
-
-```text
-external/
-├── Depth-Anything-V2/
-└── sam3/
-```
-
-### 2. Install FrontVeg V2 from PyPI
-
-Once the external dependencies have been installed, return to the directory where you want to use FrontVeg V2 and run:
-
-```bash
 pip install frontvegV2
+# This installs the FrontVeg V2 package and its Python dependencies.
 ```
 
-This installs the FrontVeg V2 package and its Python dependencies.
-
-### 3. Check the installation
-
-You can verify that FrontVeg V2 is available with:
+#### 4. Check the installation
 
 ```bash
+# You can verify that FrontVeg V2 is available with:
 python -c "import frontveg; print('FrontVeg V2 installed successfully')"
 ```
 
 > **Important:** The external repositories must be installed before running FrontVeg V2. In particular, **SAM3 must be installed with `pip install -e .`** from its cloned repository.
 
-### Alternative: Development Installation
+#### 5. Usage in Napari
 
-If you want to launch a batch processing or modify the source code, you can clone the repository and install it in editable mode:
+5.1. Launch Napari: `napari` <br>
+5.2. Open an RGB image of a row crop. <br>
+5.3. Select **Plugins > FrontVeg V2 Studio**. <br>
+5.4. Set your prompt (e.g., "leaf") and adjust parameters (Tile Overlap, Sigma, etc.). <br>
+5.5. Click **Run Complete Pipeline**.
 
-```bash
-git clone https://github.com/djaliloh/FrontVegV2.git
-cd FrontVegV2
+> **Watch the [FrontVeg V2 napari plugin tutorial here](https://youtu.be/0sHq0k9mMcc)**
 
-mkdir external
-cd external
 
-# Depth-Anything V2
-git clone https://github.com/DepthAnything/Depth-Anything-V2.git
 
-# SAM3
-git clone https://github.com/facebookresearch/sam3.git
-cd sam3
-pip install -e .
+## To reproduce results from the paper
 
-cd ../..
+### 1. Dataset
 
-# Install FrontVeg V2 in editable mode
-pip install -e .
+We provide 1 image and its corresponding mask of each crop used in this study to test the pipeline: <br>
+Find the data here: https://github.com/djaliloh/FrontVegV2_data
+
+> The entire dataset used in the paper will be available on [Zenodo](https://zenodo.org/) upon acceptance. 
+
+### 2. Evaluation
+
+Assuming you have set up the environment and cloned the FrontVegV2 and external <br> 
+models repositories, you can run the pipeline with the following parameters:
+
+```text
+**Parameters used to obtain the results presented in the paper:**
+   - VADT params:
+      - peak_dist=8        # peak distance
+      - sigma=1.1          # sigma
+      - smoothed           # if flag is present, apply gaussian smoothing to the depth map
+
+   - SAM3 params:
+      - conf_threshold = 0.35  # confidence threshold
+      - overlap        = 0.50  # overlap between tiles
+      - max_tile_ratio = 0.55  # max tile ratio
+      - tile_size      = 640   # tile size
 ```
 
-<!-- ### Option 2: Direct PyPI Install + Environment Variables  -->
+```bash
+# Run the pipeline with your desired parameters
+python main_final.py \
+  --input <path_to_raw_rgb_images> \
+  --output <path_to_final_output_directory> \
+  --sam3_ckpt <path_to_sam3.pt> \
+  --prompt <sam3_text_prompt> \
+  --peak_dist <integer> \
+  --sigma <float> \
+  --smoothed 
+```
 
-<!-- ```powershell
-# If you installed the plugin directly via PyPI (pip install frontvegv2), you must specify the paths to your local SAM3 code repository and checkpoints using environment variables : 
-
-# Windows (PowerShell):
-$env:FRONTVEG_SAM3_REPO = "<path_to_sam3_repo>"
-$env:FRONTVEG_SAM3_CKPT = "<path_to_sam3.pt>"
-$env:FRONTVEG_DEPTH_REPO = "<path_to_depth_anything_v2_repo>"
-$env:FRONTVEG_DEPTH_CKPT_DIR = "<path_to_depth_ckpts_folder>"
-
-napari
-
-
-# Linux / macOS (Bash):
-export FRONTVEG_SAM3_REPO="<path_to_sam3_repo>"
-export FRONTVEG_SAM3_CKPT="<path_to_sam3.pt>"
-export FRONTVEG_DEPTH_REPO="<path_to_depth_anything_v2_repo>"
-export FRONTVEG_DEPTH_CKPT_DIR="<path_to_depth_ckpts_folder>"
-
-napari
-``` -->
-
-
-
-## Usage in Napari
-
-1. Launch Napari: `napari`
-2. Open an RGB image of a row crop.
-3. Select **Plugins > FrontVeg V2 Studio**.
-4. Set your prompt (e.g., "leaf") and adjust parameters (Tile Overlap, Sigma, etc.).
-5. Click **Run Complete Pipeline**.
-
-> **Watch the video tutorial here:** https://youtu.be/0sHq0k9mMcc
-<!-- or visit the website https://frontvegv2.github.io/FrontVegV2/.  -->
 
 
 ## Acknowledgements
@@ -298,3 +254,42 @@ url={https://openreview.net/forum?id=Z24CpPVqcU}
 }
 ```
 
+
+
+
+<!-- 1. **Tomato** (Variety: `B_564_2_34140`)  
+   - **Category:** Trellised High-wire (High-density vertical training)  
+   - **Growth Stage:** 4th truss  
+   - **Images:** High-resolution images taken from a side-view robotic gantry system.  
+   - **Data Location:** `https://github.com/djaliloh/FrontVegV2_data`
+
+2. **Winter Squash** (Variety: `T_189_5_49095`)  
+   - **Category:** Trellised Vertical (Vertical training, dense canopy, fruit visible)  
+   - **Growth Stage:** 1st to 7th truss  
+   - **Images:** High-resolution images taken from a side-view robotic gantry system.  
+   - **Data Location:** `https://github.com/djaliloh/FrontVegV2_data` -->
+
+
+
+<!-- ```powershell
+# If you installed the plugin directly via PyPI (pip install frontvegv2), you must specify the paths to your local SAM3 code repository and checkpoints using environment variables : 
+
+# Windows (PowerShell):
+$env:FRONTVEG_SAM3_REPO = "<path_to_sam3_repo>"
+$env:FRONTVEG_SAM3_CKPT = "<path_to_sam3.pt>"
+$env:FRONTVEG_DEPTH_REPO = "<path_to_depth_anything_v2_repo>"
+$env:FRONTVEG_DEPTH_CKPT_DIR = "<path_to_depth_ckpts_folder>"
+
+napari
+
+
+# Linux / macOS (Bash):
+export FRONTVEG_SAM3_REPO="<path_to_sam3_repo>"
+export FRONTVEG_SAM3_CKPT="<path_to_sam3.pt>"
+export FRONTVEG_DEPTH_REPO="<path_to_depth_anything_v2_repo>"
+export FRONTVEG_DEPTH_CKPT_DIR="<path_to_depth_ckpts_folder>"
+
+napari
+``` -->
+
+<!-- or visit the website https://frontvegv2.github.io/FrontVegV2/.  -->

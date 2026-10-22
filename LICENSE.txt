@@ -19,3 +19,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+# Third-Party Software and Models
+
+Third-party software, libraries, and AI models used by FrontVeg V2, including 
+SAM 3 and Depth Anything V2, are subject to their respective licenses and terms of use. 
+These components are not necessarily covered by the MIT License governing FrontVeg V2. 
+Users are responsible for complying with the applicable third-party license terms.

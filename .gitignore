@@ -2,7 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.pyc 
+*.pyc
+test.py
 
 # Environnements virtuels
 .env
@@ -18,15 +19,11 @@ dist/
 # Logs
 *.log
 
-# Checkpoints (modèles lourds)
-# checkpoints/
+# Checkpoints
 *.pt
 *.pth
 
-# Dossiers externes (datasets, deps non versionnées)
-# external/ 
-# Depth-Anything-V2/
-# sam3/
+# Dossiers externes 
 data/
 datasets/
 outputs/
@@ -42,9 +39,6 @@ results
 .DS_Store
 Thumbs.db
 
-
-README_old.md
-README_presqbon.md
-ftveg_napari_dependences.txt
-test.py
-requirements.txt
+# Reports
+softwarex_report.md
+pypi_audit.md

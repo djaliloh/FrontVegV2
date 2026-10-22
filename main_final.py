@@ -41,8 +41,11 @@ def main():
 
     # SAM3 Params
     parser.add_argument("--sam3_ckpt", type=str, required=True, help="Path to SAM3 .pt file")
-    parser.add_argument("--prompt", type=str, default="leaf", help="Text prompt for SAM3")
-    parser.add_argument("--tile_size", type=int, default=640)
+    parser.add_argument("--sam3_prompt", type=str, default="leaf", help="Text prompt for SAM3")
+    parser.add_argument("--sam3_tile_size", type=int, default=640)
+    parser.add_argument("--sam3_conf_threshold", type=float, default=0.35)
+    parser.add_argument("--sam3_overlap", type=float, default=0.50)
+    parser.add_argument("--sam3_max_tile_ratio", type=float, default=0.55)
     
     args = parser.parse_args()
 
@@ -56,7 +59,7 @@ def main():
 
     frontveg_pipe = FrontVegPipeline(config)
     sam3_model = SAM3Predictor(checkpoint_path=args.sam3_ckpt)
-    sam3_tiler = SAM3TiledInference(sam3_model, tile_size=args.tile_size)
+    sam3_tiler = SAM3TiledInference(sam3_model, args.sam3_tile_size, args.sam3_overlap, args.sam3_max_tile_ratio)
     post_proc = PostProcessor()
 
     input_path = Path(args.input)
