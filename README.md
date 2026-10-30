@@ -149,7 +149,7 @@ python -c "import frontveg; print('FrontVeg V2 installed successfully')"
 ### 1. Dataset
 
 We provide 1 image and its corresponding mask of each crop used in this study to test the pipeline: <br>
-Find the data here: https://github.com/djaliloh/frontVegV2_data
+Find the data here: https://github.com/djaliloh/frontvegv2_data
 
 > The entire dataset used in the paper will be available on [Zenodo](https://zenodo.org/) upon acceptance. 
 
