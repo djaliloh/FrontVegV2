@@ -144,7 +144,7 @@ class SAM3TiledInference:
     
 
     # ==========================================================
-    # Par claude ai, it works but artifacts still visible
+    # it works but artifacts still visible
     # def _merge_fragments(self, fragments, W, H):
     #     if not fragments: return None, 0
 
