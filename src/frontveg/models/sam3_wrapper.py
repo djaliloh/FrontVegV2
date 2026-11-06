@@ -5,7 +5,14 @@ import sys
 import os
 
 class SAM3Predictor:
-    def __init__(self, checkpoint_path, repo_path=None, device="cuda", conf_threshold=0.35):
+    def __init__(
+        self, 
+        checkpoint_path, 
+        repo_path=None, 
+        device="cuda", 
+        conf_threshold=0.35
+        ):
+        
         if repo_path and os.path.exists(repo_path) and repo_path not in sys.path:
             sys.path.append(repo_path)
         

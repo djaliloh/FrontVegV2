@@ -1,4 +1,6 @@
-# FrontVeg V2 : Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops <img src="assets/logo_frontveg.png" style="max-width: 1%; height: auto;"> 
+# FrontVeg V2 : Foreground-Aware Zero-Shot Plant Trait Segmentation in Trellised Crops 
+
+<!-- <img src="assets/logo_frontveg.png" style="max-width: 1%; height: auto;">  -->
 
 <!-- ## Authors -->
 **Abdoul Djalil Ousseini Hamza** ([ORCID](https://orcid.org/0009-0008-6172-4439)), **Herearii Metuarea** ([ORCID](https://orcid.org/0009-0008-2716-0617)), **Corentin Lothodé** ([ORCID](https://orcid.org/0000-0002-8209-317X)), **Morgane Roth** ([ORCID](https://orcid.org/0000-0002-5244-4215)), **Eric Duchêne** ([ORCID](https://orcid.org/0000-0003-2712-1892)), **Lionel Ley**, **David Alletru** ([ORCID](https://orcid.org/0009-0006-6238-6123)), and **David Rousseau**<sup>*</sup> ([ORCID](https://orcid.org/0000-0002-7935-1609))
@@ -158,8 +160,9 @@ Find the data here: https://github.com/djaliloh/FrontVegV2/tree/main/frontvegv2_
 Assuming you have set up the environment and cloned the FrontVegV2 and external <br> 
 models repositories, you can run the pipeline with the following parameters:
 
+#### Paramaters
 ```text
-**Parameters used to obtain the results presented in the paper:**
+Parameters used to obtain the results presented in the paper:**
    - VADT params:
       - peak_dist=8        # peak distance
       - sigma=1.1          # sigma
@@ -183,6 +186,28 @@ python main_final.py \
   --sigma <float> \
   --smoothed 
 ```
+
+
+
+#### Trait-Specific Prompts and Tile Sizes
+
+The text prompts and tile sizes used for each crop and trait in the experiments reported in the paper are listed below.
+
+| Crop | Trait | SAM3 Text Prompt | Tile Size |
+|:---|:---|:---|---:|
+| Grapevine | Black rot | `brown spots` | 384 |
+| Grapevine | Downy mildew | `brown leaf. brown spot.` | 640 |
+| Grapevine | Fruits | `grapes` | 640 |
+| Grapevine | Leaves | `leaf` | 640 |
+| Apple | Fruits | `fruit` | 512 |
+| Apple | Leaves | `leaf` | 384 |
+| Apricot | Fruits | `fruit` | 512 |
+| Apricot | Leaves | `leaf` | 384 |
+
+**Notes:**
+- The text prompts are passed to SAM3 for zero-shot segmentation.
+- Tile size is specified in pixels.
+- The remaining VADT and SAM3 parameters are shared across experiments and are listed in the [Parameters](#Paramaters) section.
 
 
 
