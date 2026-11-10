@@ -188,7 +188,6 @@ python main_final.py \
 ```
 
 
-
 #### Trait-Specific Prompts and Tile Sizes
 
 The text prompts and tile sizes used for each crop and trait in the experiments reported in the paper are listed below.
@@ -208,6 +207,45 @@ The text prompts and tile sizes used for each crop and trait in the experiments 
 - The text prompts are passed to SAM3 for zero-shot segmentation.
 - Tile size is specified in pixels.
 - The remaining VADT and SAM3 parameters are shared across experiments and are listed in the [Parameters](#Paramaters) section.
+
+
+
+#### Baseline Configurations
+
+The following configurations were used for the comparative experiments reported in the paper. All methods processing high-resolution images use sliding-window inference with a tile overlap of 50%.
+
+##### Comparative Methods
+
+| Method | Window Size | Detection Thresholds | NMS IoU |
+|:---|---:|:---|---:|
+| Florence-2 + SAM2 | 640 | — | 0.50 |
+| SAM3 + Tiling + NMS | 640 | SAM3 confidence: 0.35 | 0.50 |
+| Grounding DINO + SAM2 | 640 | Box: 0.35; Text: 0.25 | 0.50 |
+| INSID3 | 640 | — | 0.50 |
+
+##### INSID3-Specific Parameters
+
+| Parameter | Value |
+|:---|---:|
+| DINOv3 backbone | Large |
+| Input image size | 1024 |
+| Number of SVD components | 500 |
+| Clustering threshold (`tau`) | 0.6 |
+| Merge threshold | 0.2 |
+| Mask refiner | Bilinear |
+
+<!-- #### FrontVeg V2 Configuration
+
+| Parameter | Value |
+|:---|---:|
+| SAM3 confidence threshold | 0.35 |
+| Tile overlap | 0.50 |
+| Maximum tile mask ratio | 0.55 |
+| BBox IoU threshold (GMA) | 0.05 |
+| Mask IoU threshold (GMA) | 0.10 | -->
+
+**Note:** NMS is used for the baseline configurations listed above. The complete FrontVeg V2 pipeline uses Graph-Based Mask Assembly (GMA) instead of NMS.
+
 
 
 
